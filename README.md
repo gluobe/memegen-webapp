@@ -1,7 +1,7 @@
 # Application README #
 ### Application visual representation ###
 
-![](Images/PHPApplicationSchema.png?raw=true)
+![](images/PHPApplicationSchema.png?raw=true)
 
 ### What? ###
 * This application folder houses the Gluo PHP Meme Generator.
