@@ -53,7 +53,7 @@ YOURID="<your_ID>"
     
 # Download and install MemeGen
   # Git clone the repository in your home directory
-  git clone https://github.com/gluobe/memegen-webapp.git ~/memegen-webapp
+  git clone https://github.com/gluobe/memegen-webapp-aws.git ~/memegen-webapp
   # Clone the application out of the repo to the web folder.
   cp -r ~/memegen-webapp/* /var/www/html/
   # Set permissions for apache
