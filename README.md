@@ -4,15 +4,10 @@
 ![](images/PHPApplicationScreenshot.png?raw=true)
 
 ### What? ###
-* This application folder houses the Gluo PHP Meme Generator.
 
-### Where? ###
-#### Folders ####
-* `meme-generator` houses the python app to create memes through the bash commandline. It is used in the backend to create memes by the PHP application's web interface. It also contains the meme templates and created memes in `meme-generator/templates` and `meme-generator/memes` respectively.
-* `site-files` houses the website's files. Bootstrap framework, images, css, fonts, jquery and js.
+* This application folder houses the Gluo PHP Meme Generator which is used as an example application in other workshops.
 
-#### Files ####
-* `config.php` is the file where a student can change the save locations for meme files and meme data and change the site color.
-* `functions.php` contains all used functions by the other smaller php files in this dir. It contains the most logic and is the proxy to access the database or filesystem.
-* `index.php` is the site itself and contains jquery and ajax logic to update the site dynamically.
-
+* The whole point of the application is that its config.php can be switched at will and the application will behave differently dynamically.
+    * Changing `$remoteData` from false to true, means it will no longer use its local MongoDB and choose DynamoDB.
+    * Changing `$remoteFiles` from false to true, means it will use S3 in addition to storing images locally.
+    * Changing `$siteColorBlue` from false to true, means the site color changes for when multiple instances with the same application are running.
