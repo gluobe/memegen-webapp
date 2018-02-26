@@ -4,13 +4,13 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="author" content="Ben Leynen @ Gluo"/>
-		
+
 		<title>Gluo MemeGen</title>
-		
+
 		<link rel="icon" href=site-files/images/favicon.ico type="image/x-icon"/>
 		<link rel="stylesheet" href="site-files/css/bootstrap.min.css">
 		<link rel="stylesheet" href="site-files/css/style.css">
-		
+
 		<script src="site-files/js/jquery-3.1.1.min.js"></script>
 		<script src="site-files/js/bootstrap.min.js"></script>
 		<script>
@@ -18,24 +18,31 @@
 						//////////////////////////////
 						///////// GLOBAL VAR /////////
 						//////////////////////////////
-					
+
 						// Declare memes dir
 						var dirname = "meme-generator/memes/";
-					
+						var remoteFiles = false;
+
 						function refreshImages(ajaxResult){
 								// Remove all images
 								$(".createdMemes").html("");
 
 								// Sort by date (newest memes first)
 								var resultSorted = $.parseJSON(ajaxResult).sort(function(obj1, obj2) { return obj1.date.S - obj2.date.S; });
-								
+
 								// Add all images
 								$.each( resultSorted, function( key, value ) {
-										$("<div class=\"col-md-4\"><img src=\"" + dirname + value.name.S + ".jpg\" alt=\"" + dirname + value.name.S + ".jpg\" height=\"400\"/></div>").prependTo(".createdMemes");			
+									if(remoteFiles == false){
+										//take files from site
+										$("<div class=\"col-md-4\"><img src=\"" + dirname + value.name.S + ".jpg\" alt=\"" + dirname + value.name.S + ".jpg\" height=\"400\"/></div>").prependTo(".createdMemes");
+									}else{
+										//take files from s3 bucket.
+										$("<div class=\"col-md-4\"><img src=\"" + value.url.S  + "\" alt=\"" + value.url.S + "\" height=\"400\"/></div>").prependTo(".createdMemes");
+									}
 								});
 						}
-					
-					
+
+
 						//////////////////////////////
 						///////// GET CONFIG ///////// (trigger: visit page)
 						//////////////////////////////
@@ -46,23 +53,23 @@
 									// Turn into vars
 									var config = jQuery.parseJSON(result);
 									var yourId = config.yourId;
-									var remoteFiles = config.remoteFiles;
+									remoteFiles = config.remoteFiles;
 									var remoteData = config.remoteData;
 									var siteColorBlue = config.siteColorBlue;
-									
+
 									// Log
 									console.log( "Config file received:");
 									console.log( "> yourId: " + yourId );
 									console.log( "> remoteFiles: " + remoteFiles );
 									console.log( "> remoteData: " + remoteData );
 									console.log( "> siteColorBlue: " + siteColorBlue );
-									
+
 									// Change site display
 									$("#yourId").html("yourId: " + yourId);
 									$("#remoteFiles").html("remoteFiles: " + remoteFiles);
 									$("#remoteData").html("remoteData: " + remoteData);
 									$("#siteColorBlue").html("siteColorBlue: " + siteColorBlue);
-									
+
 									// Change site color
 									if(siteColorBlue){
 											// Blue
@@ -77,7 +84,7 @@
 								console.log( "Get of config file failed: " + result );
 							}
 						});
-						
+
 						/////////////////////////////
 						///////// GET MEMES ///////// (trigger: visit page)
 						/////////////////////////////
@@ -87,7 +94,7 @@
 							success: function(result){
 									// Log
 									console.log( "Memes gotten: " + result );
-									
+
 									// Delete and recreate images on page
 									refreshImages(result);
 							},
@@ -97,24 +104,24 @@
 								Console.log( "Check if you ran `composer` right for the PHP AWS SDK.");
 							}
 						});
-					
+
 						/////////////////////////////////
 						///////// GENERATE MEME ///////// (trigger: press button)
 						/////////////////////////////////
 						$(".generateButton").click(function(){
 								// Log
 								console.log( "Generate button clicked." );
-								
+
 								// Set variables
 								var topText = $(".generate-meme").find("#toptext").val();
 								var botText = $(".generate-meme").find("#bottext").val();
 								var selectedMeme = $(".generate-meme").find("#selectedMeme").val();
-								
+
 								// if variables contain something, generate the meme
 								if(topText != "" && botText != ""){
 										// Log
 										console.log( "Meme generated: " + "( "+selectedMeme + " / "+ topText + " / " + botText + " )" );
-									
+
 										$.ajax({
 											type: "POST",
 											url: "generateMeme.php",
@@ -127,10 +134,10 @@
 											success: function(result){
 												// Log
 												console.log( "Memes gotten: " + result );
-												
+
 												// Delete and recreate images on page
 												refreshImages(result);
-												
+
 												// Empty input fields
 												$(".generate-meme").find("#toptext").val("");
 												$(".generate-meme").find("#bottext").val("");
@@ -143,12 +150,12 @@
 								} else {
 										// Log
 										console.log( "One or more input fields are empty." );
-										
+
 										// Tell user to not be dumb
 										alert("Please fill in both fields before generating a meme.");
 								}
 						});
-						
+
 						//////////////////////////////////////
 						///////// SELECT DROPDOWNBOX ///////// (trigger: select a meme from the dropdownbox)
 						//////////////////////////////////////
@@ -158,12 +165,12 @@
 								$("#selectedMeme").val(memeName);
 								var selected = $("#selectedMeme").val();
 								console.log( "New meme selected: " + selected );
-								
+
 								// Change picture of selected meme visually.
 								$("#showingImage").attr("src","meme-generator/templates/" + selected + ".jpg");
 								$("#showingMeme").html(selected);
 						});
-						
+
 				});
 		</script>
 	</head>
@@ -225,12 +232,12 @@
 						</div>
 						<div class="col-sm-3"></div>
 	  			</form>
-					
+
 				</div>
 				<div class="col-md-3"></div>
 			</div>
 			<div class="container-fluid text-center">
-				<div class="row"> 
+				<div class="row">
 					<h2>Generated Memes</h2>
 					<div class="createdMemes"></div>
 			</div>
