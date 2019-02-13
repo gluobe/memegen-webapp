@@ -5,6 +5,7 @@ YOURID="<your_ID>"
 
 # Set a settings for non interactive mode
   export DEBIAN_FRONTEND=noninteractive
+	
 # Update the server
   apt-get update -y 
 
