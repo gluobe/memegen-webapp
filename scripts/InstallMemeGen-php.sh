@@ -25,7 +25,7 @@ fi
   echo "extension=mongodb.so" >> /etc/php/7.0/apache2/php.ini && echo "extension=mongodb.so" >> /etc/php/7.0/cli/php.ini
 
 # Pip install meme creation packages and awscli for syncing s3 to local fs
-	# Turns out: installing pip packages corrupts your current session.
+	# Turns out: upgrading pip packages corrupts your current session.
 	# pip install --upgrade pip 
 	pip install wand awscli
 	
