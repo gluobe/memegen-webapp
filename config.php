@@ -9,11 +9,11 @@ $yourId = "<your_ID>";
 $awsRegion = "eu-west-1"; # Ireland
 #$awsRegion = "us-east-2"; # Ohio
 
-$dynamoDBTable = "images-$yourId"; # not using cloudformation
-#$dynamoDBTable = "cloudformation-images-$yourId"; # using cloudformation
+$dynamoDBTable = "lab-images-table-$yourId"; # not using cloudformation
+#$dynamoDBTable = "lab-cf-images-table-$yourId"; # using cloudformation
 
 $s3Bucket = "lab-images-bucket-$yourId"; # not using cloudformation
-#$s3Bucket = "cloudformation-images-bucket-$yourId"; # using cloudformation 
+#$s3Bucket = "lab-cf-images-bucket-$yourId"; # using cloudformation 
 
 ###################
 ## Site Settings ##
