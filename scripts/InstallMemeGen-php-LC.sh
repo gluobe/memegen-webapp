@@ -64,6 +64,7 @@ PHP_VERSION=7.4
 # Install aws sdk for DynamoDB
   until [ -f /var/www/html/vendor/autoload.php ]
   do
+      echo "Installing AWS SDK into /var/www/html..."
       export HOME=/root
       export COMPOSER_HOME=/var/www/html
       composer -d "/var/www/html" require aws/aws-sdk-php
