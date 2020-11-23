@@ -1,11 +1,16 @@
 #!/bin/bash
 # Installs MemeGen. Make sure you've got privileges with the user you execute this as.
 
+# Print each command and exit as soon as something fails.
+set -ex
+
 # Make sure it's run as root
 if [[ $EUID -ne 0 ]]; then
    echo "This script must be run as root! use 'sudo su -'." 
    exit 1
 fi
+  
+  PHP_VERSION=7.4
 
 # Set a settings for non interactive mode
   export DEBIAN_FRONTEND=noninteractive
@@ -14,30 +19,26 @@ fi
   apt-get update -y 
 
 # Install packages (apache, mongo, php, python and other useful packages)
-  # Mongodb repo commands + apt refresh
-  apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2930ADAE8CAF5059EE73BB4B58712A2291FA4AD5
-  echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.6 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-3.6.list
-  apt-get update -y
   # Install all
-  apt-get install -y apache2 mongodb-org mongodb-org-server php7.0 php7.0-dev libapache2-mod-php7.0 php-pear pkg-config libssl-dev libsslcommon2-dev python-minimal python-pip imagemagick composer wget unzip
+  apt-get install -y apache2 composer mongodb mongodb-server php$PHP_VERSION php$PHP_VERSION-dev libapache2-mod-php$PHP_VERSION php-pear pkg-config libssl-dev libssl-dev python3-pip imagemagick wget unzip
+  
   # Mongodb config
   pecl install mongodb
-  echo "extension=mongodb.so" >> /etc/php/7.0/apache2/php.ini && echo "extension=mongodb.so" >> /etc/php/7.0/cli/php.ini
+  echo "extension=mongodb.so" >> /etc/php/$PHP_VERSION/apache2/php.ini && echo "extension=mongodb.so" >> /etc/php/$PHP_VERSION/cli/php.ini
 
 # Pip install meme creation packages and awscli for syncing s3 to local fs
-	# Turns out: upgrading pip packages corrupts your current session.
-	# pip install --upgrade pip 
-	pip install wand awscli
+	pip3 install wand awscli
 	
 # Enable and start services  
   # Enable
-  systemctl enable mongod apache2
+  systemctl enable mongodb apache2
   # Start
-  systemctl start mongod apache2
+  systemctl start mongodb apache2
   # Wait for mongod start
   until nc -z localhost 27017
   do
       sleep 1
+      echo "Waiting for MongoDB to be available..."
   done
 
 # Configure Mongodb
@@ -55,7 +56,7 @@ fi
   # Enable user credentials security
   echo "security:" >> /etc/mongod.conf && echo "  authorization: enabled" >> /etc/mongod.conf
   # Restart the mongodb service
-  systemctl restart mongod
+  systemctl restart mongodb
     
 # Download and install MemeGen
   # Git clone the repository in your home directory
@@ -70,7 +71,7 @@ fi
   do
       export HOME=/root
       export COMPOSER_HOME=/var/www/html
-      composer -d="/var/www/html" require aws/aws-sdk-php
+      composer -d "/var/www/html" require aws/aws-sdk-php
       sleep 2
   done
   
