@@ -2,7 +2,7 @@
 # Installs MemeGen. Make sure you've got privileges with the user you execute this as.
 
 # Print each command and exit as soon as something fails.
-set -ex
+set -e
 
 # Make sure it's run as root
 if [[ $EUID -ne 0 ]]; then
@@ -60,7 +60,7 @@ fi
     
 # Download and install MemeGen
   # Git clone the repository in your home directory
-  git clone https://github.com/gluobe/memegen-webapp-aws.git ~/memegen-webapp
+  git clone --single-branch --branch 2020-version https://github.com/gluobe/memegen-webapp-aws.git ~/memegen-webapp
   # Clone the application out of the repo to the web folder.
   cp -r ~/memegen-webapp/* /var/www/html/
   # Set permissions for apache
