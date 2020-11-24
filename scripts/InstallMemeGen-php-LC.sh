@@ -4,8 +4,12 @@
 # Print each command and exit as soon as something fails.
 set -ex
 
+###############################################
+#### STUDENTS, please change this variable ####
+###############################################
 YOURID="<your_ID>"
-MYREGION="<your_region>"
+
+MYREGION=$(TOKEN=`curl -s X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"` && curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r ".region")
 PHP_VERSION=7.4
 
 # Set a settings for non interactive mode
