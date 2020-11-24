@@ -9,14 +9,16 @@ set -ex
 ###############################################
 YOURID="<your_ID>"
 
-MYREGION=$(TOKEN=`curl -s X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"` && curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r ".region")
-PHP_VERSION=7.4
 
 # Set a settings for non interactive mode
   export DEBIAN_FRONTEND=noninteractive
 	
 # Update the server
-  apt-get update -y 
+  apt-get update -y
+  apt-get install -y jq
+  
+  MYREGION=$(TOKEN=`curl -s X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"` && curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r ".region")
+  PHP_VERSION=7.4
 
 # Install packages (apache, mongo, php, python and other useful packages)
   # Install all
