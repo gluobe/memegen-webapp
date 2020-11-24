@@ -5,6 +5,7 @@
 set -ex
 
 YOURID="<your_ID>"
+MYREGION="<your_region>"
 PHP_VERSION=7.4
 
 # Set a settings for non interactive mode
