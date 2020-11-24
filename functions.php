@@ -150,10 +150,10 @@ function generateMeme($top, $bot, $imgname){
             'Body'   => $image
         ]);
 
-        //get the url from the s3 stored image.
+        // Get the url from the s3 stored image.
         $url = $s3Client->getObjectUrl ( $s3Bucket, $imgnametargetwithext );
 
-        //delete temporally file
+        // Delete temporary file
         unlink("/var/www/html/meme-generator/memes/".$imgnametargetwithext);
     }
 
