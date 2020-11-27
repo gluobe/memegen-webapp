@@ -12,8 +12,8 @@ $awsRegion = "eu-west-1"; # Ireland
 $dynamoDBTable = "lab-images-table-$yourId"; # not using cloudformation
 #$dynamoDBTable = "lab-cf-images-table-$yourId"; # using cloudformation
 
-$s3Bucket = "lab-images-bucket-$yourId"; # not using cloudformation
-#$s3Bucket = "lab-cf-images-bucket-$yourId"; # using cloudformation 
+$s3Bucket = "lab-images-bkt-$yourId"; # not using cloudformation
+#$s3Bucket = "lab-cf-images-bkt-$yourId"; # using cloudformation 
 
 ###################
 ## Site Settings ##
