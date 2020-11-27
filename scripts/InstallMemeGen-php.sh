@@ -54,7 +54,7 @@ fi
     )
   ' | mongo
   # Enable user credentials security
-  echo "security:" >> /etc/mongod.conf && echo "  authorization: enabled" >> /etc/mongod.conf
+  echo "security:" >> /etc/mongodb.conf && echo "  authorization: enabled" >> /etc/mongodb.conf
   # Restart the mongodb service
   systemctl restart mongodb
     
