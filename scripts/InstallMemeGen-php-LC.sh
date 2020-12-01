@@ -13,16 +13,20 @@ YOURID="<your_ID>"
 # Set a settings for non interactive mode
   export DEBIAN_FRONTEND=noninteractive
 	
-# Update the server
-  apt-get update -y
-  apt-get install -y jq
-  
   MYREGION=$(TOKEN=`curl -s X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"` && curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r ".region")
   PHP_VERSION=7.4
+  
+# Update the server
+  apt-get update -y && apt-get upgrade -y
+  apt-get install -y jq
+
+# Install latest mongodb repo
+  wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add -
+  echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list
+  apt-get update -y 
 
 # Install packages (apache, mongo, php, python and other useful packages)
-  # Install all
-  apt-get install -y apache2 composer mongodb mongodb-server php$PHP_VERSION php$PHP_VERSION-dev libapache2-mod-php$PHP_VERSION php-pear pkg-config libssl-dev libssl-dev python3-pip imagemagick wget unzip
+  apt-get install -y apache2 composer mongodb-org mongodb-org-server php$PHP_VERSION php$PHP_VERSION-dev libapache2-mod-php$PHP_VERSION php-pear pkg-config libssl-dev libssl-dev python3-pip imagemagick wget unzip
   
   # Mongodb config
   pecl install mongodb
@@ -33,9 +37,9 @@ YOURID="<your_ID>"
   
 # Enable and start services  
   # Enable
-  systemctl enable mongodb apache2
+  systemctl enable mongod apache2
   # Start
-  systemctl start mongodb apache2
+  systemctl start mongod apache2
   # Wait for mongod start
   until nc -z localhost 27017
   do
@@ -58,7 +62,7 @@ YOURID="<your_ID>"
   # Enable user credentials security
   echo "security:" >> /etc/mongod.conf && echo "  authorization: enabled" >> /etc/mongod.conf
   # Restart the mongodb service
-  systemctl restart mongodb
+  systemctl restart mongod
     
 # Download and install MemeGen
   # Git clone the repository in your home directory

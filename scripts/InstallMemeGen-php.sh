@@ -16,11 +16,15 @@ fi
   export DEBIAN_FRONTEND=noninteractive
 	
 # Update the server
+  apt-get update -y && apt-get upgrade -y
+
+# Install latest mongodb repo
+  wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add -
+  echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list
   apt-get update -y 
 
 # Install packages (apache, mongo, php, python and other useful packages)
-  # Install all
-  apt-get install -y apache2 composer mongodb mongodb-server php$PHP_VERSION php$PHP_VERSION-dev libapache2-mod-php$PHP_VERSION php-pear pkg-config libssl-dev libssl-dev python3-pip imagemagick wget unzip
+  apt-get install -y apache2 composer mongodb-org mongodb-org-server php$PHP_VERSION php$PHP_VERSION-dev libapache2-mod-php$PHP_VERSION php-pear pkg-config libssl-dev libssl-dev python3-pip imagemagick wget unzip
 
   # Mongodb config
   pecl install mongodb
@@ -31,9 +35,9 @@ fi
 	
 # Enable and start services  
   # Enable
-  systemctl enable mongodb apache2
+  systemctl enable mongod apache2
   # Start
-  systemctl start mongodb apache2
+  systemctl start mongod apache2
   # Wait for mongod start
   until nc -z localhost 27017
   do
@@ -56,7 +60,7 @@ fi
   # Enable user credentials security
   echo "security:" >> /etc/mongod.conf && echo "  authorization: enabled" >> /etc/mongod.conf
   # Restart the mongodb service
-  systemctl restart mongodb
+  systemctl restart mongod
     
 # Download and install MemeGen
   # Git clone the repository in your home directory (already done by student to run the script)
