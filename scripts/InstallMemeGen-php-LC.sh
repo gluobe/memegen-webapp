@@ -13,12 +13,14 @@ YOURID="<your_ID>"
 # Set a settings for non interactive mode
   export DEBIAN_FRONTEND=noninteractive
 	
-  MYREGION=$(TOKEN=`curl -s X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"` && curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r ".region")
-  PHP_VERSION=7.4
+
   
 # Update the server
   apt-get update -y && apt-get upgrade -y
   apt-get install -y jq
+
+  MYREGION=$(TOKEN=`curl -s X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"` && curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r ".region")
+  PHP_VERSION=7.4
 
 # Install latest mongodb repo
   wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add -
