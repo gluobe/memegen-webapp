@@ -64,7 +64,7 @@ fi
     
 # Download and install MemeGen
   # Git clone the repository in your home directory (already done by student to run the script)
-  # git clone --single-branch --branch 2020-version https://github.com/gluobe/memegen-webapp-aws.git ~/memegen-webapp
+  # git clone https://github.com/gluobe/memegen-webapp-aws.git ~/memegen-webapp
   # Clone the application out of the repo to the web folder.
   cp -r ~/memegen-webapp/* /var/www/html/
   # Set permissions for apache
