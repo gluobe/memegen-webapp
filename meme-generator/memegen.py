@@ -3,9 +3,6 @@ __version__ = "0.1"
 # Usage: python memegen.py "Top line" "Bottom line" originalphoto.jpg targetphoto.jpg
 
 import sys
-if (sys.version_info > (3, 0)):
-    print "The script requires Python 2 :( Sorry!"
-    sys.exit()
 
 from os import system, mkdir, getcwd, name
 from os.path import exists, join
@@ -16,7 +13,7 @@ try:
     from wand.image import Image
     from wand.color import Color
 except:
-    print "Error importing Wand! Try installing it with 'pip install wand'"
+    print("Error importing Wand! Try installing it with 'pip install wand'")
     sys.exit()
 
 MEME_FOLDER = "memes"
@@ -50,9 +47,9 @@ def generate_meme(upper_text, lower_text, picture_name_orig, picture_name_target
     text_draw.fill_color = Color("white")
 
     if upper_text:
-        text_draw.text(main_image.width / 2, 80, upper_text)
+        text_draw.text(int(main_image.width / 2), 80, upper_text)
     if lower_text:
-        text_draw.text(main_image.width / 2, main_image.height - lower_margin, lower_text)
+        text_draw.text(int(main_image.width / 2), main_image.height - lower_margin, lower_text)
 
     text_draw(main_image)
 
@@ -61,7 +58,7 @@ def generate_meme(upper_text, lower_text, picture_name_orig, picture_name_target
 if __name__ == "__main__":
     argv = sys.argv
     if len(argv) < 5:
-        print "Not enough arguments! (python memegen.py 'Top line' 'Bottom line' originalphoto.jpg targetphoto.jpg)"
+        print("Not enough arguments! (python memegen.py 'Top line' 'Bottom line' originalphoto.jpg targetphoto.jpg)")
         sys.exit()
     else:
         generate_meme(argv[1], argv[2], argv[3], argv[4])

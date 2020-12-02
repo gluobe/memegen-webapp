@@ -1,29 +1,39 @@
 #!/bin/bash
 # Installs MemeGen, modified to be used in a Launch Configuration.
 
+# Print each command and exit as soon as something fails.
+set -ex
+
+###############################################
+#### STUDENTS, please change this variable ####
+###############################################
 YOURID="<your_ID>"
+
 
 # Set a settings for non interactive mode
   export DEBIAN_FRONTEND=noninteractive
 	
 # Update the server
+  apt-get update -y && apt-get upgrade -y
+  apt-get install -y jq
+
+  MYREGION=$(TOKEN=`curl -s X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"` && curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r ".region")
+  PHP_VERSION=7.4
+
+# Install latest mongodb repo
+  wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add -
+  echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list
   apt-get update -y 
 
 # Install packages (apache, mongo, php, python and other useful packages)
-  # Mongodb repo commands + apt refresh
-  apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2930ADAE8CAF5059EE73BB4B58712A2291FA4AD5
-  echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.6 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-3.6.list
-  apt-get update -y
-  # Install all
-  apt-get install -y apache2 mongodb-org mongodb-org-server php7.0 php7.0-dev libapache2-mod-php7.0 php-pear pkg-config libssl-dev libsslcommon2-dev python-minimal python-pip imagemagick composer wget unzip
+  apt-get install -y apache2 composer mongodb-org mongodb-org-server php$PHP_VERSION php$PHP_VERSION-dev libapache2-mod-php$PHP_VERSION php-pear pkg-config libssl-dev libssl-dev python3-pip imagemagick wget unzip
+  
   # Mongodb config
   pecl install mongodb
-  echo "extension=mongodb.so" >> /etc/php/7.0/apache2/php.ini && echo "extension=mongodb.so" >> /etc/php/7.0/cli/php.ini
+  echo "extension=mongodb.so" >> /etc/php/$PHP_VERSION/apache2/php.ini && echo "extension=mongodb.so" >> /etc/php/$PHP_VERSION/cli/php.ini
 
 # Pip install meme creation packages and awscli for syncing s3 to local fs
-# Turns out: upgrading pip packages corrupts your current session.
-# pip install --upgrade pip 
-  pip install wand awscli
+  pip3 install wand awscli
   
 # Enable and start services  
   # Enable
@@ -34,6 +44,7 @@ YOURID="<your_ID>"
   until nc -z localhost 27017
   do
       sleep 1
+      echo "Waiting for MongoDB to be available..."
   done
 
 # Configure Mongodb
@@ -55,7 +66,7 @@ YOURID="<your_ID>"
     
 # Download and install MemeGen
   # Git clone the repository in your home directory
-  git clone https://github.com/gluobe/memegen-webapp-aws.git ~/memegen-webapp
+  git clone --single-branch --branch 2020-version https://github.com/gluobe/memegen-webapp-aws.git ~/memegen-webapp
   # Clone the application out of the repo to the web folder.
   cp -r ~/memegen-webapp/* /var/www/html/
   # Set permissions for apache
@@ -64,9 +75,10 @@ YOURID="<your_ID>"
 # Install aws sdk for DynamoDB
   until [ -f /var/www/html/vendor/autoload.php ]
   do
+      echo "Installing AWS SDK into /var/www/html..."
       export HOME=/root
       export COMPOSER_HOME=/var/www/html
-      composer -d="/var/www/html" require aws/aws-sdk-php
+      composer -d "/var/www/html" require aws/aws-sdk-php
       sleep 2
   done
   
@@ -77,6 +89,7 @@ YOURID="<your_ID>"
   systemctl restart apache2
   
 # Edit site's config.php file
+  sed -i "s@^\$awsRegion.*@\$awsRegion = \"$MYREGION\"; # (Altered by sed)@g" /var/www/html/config.php
   sed -i 's@^$remoteData.*@$remoteData = true; # DynamoDB (Altered by sed)@g' /var/www/html/config.php
   sed -i 's@^$remoteFiles.*@$remoteFiles = true; # S3 (Altered by sed)@g' /var/www/html/config.php
   sed -i "s@^\$yourId.*@\$yourId = \"$YOURID\"; # (Altered by sed)@g" /var/www/html/config.php

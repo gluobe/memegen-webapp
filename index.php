@@ -33,11 +33,21 @@
 								// Add all images
 								$.each( resultSorted, function( key, value ) {
 									if(remoteFiles == false){
-										//take files from site
+										// Take files from local filesystem
 										$("<div class=\"col-md-4\"><img src=\"" + dirname + value.name.S + ".jpg\" alt=\"" + dirname + value.name.S + ".jpg\" height=\"400\"/></div>").prependTo(".createdMemes");
 									}else{
-										//take files from s3 bucket.
-										$("<div class=\"col-md-4\"><img src=\"" + value.url.S  + "\" alt=\"" + value.url.S + "\" height=\"400\"/></div>").prependTo(".createdMemes");
+										// Take files from s3 bucket.
+                    // If variable is not null (can happen when both remoteData == false and remoteFiles == false)
+                    if(value.url != null){
+                      // If variable does not explicitly state "no url" (can happen when remoteData == true and remoteFiles == false)
+                      if (value.url.S != "no url"){
+                        $("<div class=\"col-md-4\"><img src=\"" + value.url.S  + "\" alt=\"" + value.url.S + "\" height=\"400\"/></div>").prependTo(".createdMemes");
+                      } else {
+                        console.log("# Skipping "+value.name.S+", 'no url' explicitly stated in db.")
+                      }
+                    } else {
+                      console.log("# Skipping "+value.name.S+", no url detected.")
+                    }
 									}
 								});
 						}

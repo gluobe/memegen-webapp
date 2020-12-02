@@ -125,7 +125,7 @@ function generateMeme($top, $bot, $imgname){
     $imgnametargetwithext = $imgnametargetnoext . ".jpg";
 
     # Execute meme generator python command
-    $command = "python memegen.py '$top' '$bot' '$imgnameorig' '$imgnametargetwithext' 2>&1";
+    $command = "python3 memegen.py '$top' '$bot' '$imgnameorig' '$imgnametargetwithext' 2>&1";
     $commandoutput = exec($command, $out, $status);
 
     $image = fopen("/var/www/html/meme-generator/memes/".$imgnametargetwithext,'r');
@@ -150,10 +150,10 @@ function generateMeme($top, $bot, $imgname){
             'Body'   => $image
         ]);
 
-        //get the url from the s3 stored image.
+        // Get the url from the s3 stored image.
         $url = $s3Client->getObjectUrl ( $s3Bucket, $imgnametargetwithext );
 
-        //delete temporally file
+        // Delete temporary file
         unlink("/var/www/html/meme-generator/memes/".$imgnametargetwithext);
     }
 
