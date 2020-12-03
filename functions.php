@@ -18,7 +18,6 @@ ini_set("display_errors", "On");
 function ConnectDB(){
     global $m;
     global $cloud;
-    global $connectionString;
     global $region;
     global $remoteData;
 
@@ -32,7 +31,7 @@ function ConnectDB(){
             ));
         } elseif($cloud == "AZ") {
             error_log("### bork");
-            $tableRestProxy = WindowsAzure\Common\ServicesBuilder::getInstance()->createTableService($connectionString);
+            $tableRestProxy = WindowsAzure\Common\ServicesBuilder::getInstance()->createTableService();
             try {
                 // Create table.
                 $tableRestProxy->createTable("mytable");
