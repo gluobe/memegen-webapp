@@ -23,7 +23,7 @@ function ConnectDB(){
     global $remoteData;
 
     if($remoteData){
-        console.log("### Cloud: $cloud");
+        error_log("### Cloud: $cloud");
         if($cloud == "AWS"){
             // DynamoDB
             $m = Aws\DynamoDb\DynamoDbClient::factory(array(
@@ -31,7 +31,7 @@ function ConnectDB(){
                 'version' => "latest"
             ));
         } elseif($cloud == "AZ") {
-            console.log("### bork");
+            error_log("### bork");
             $tableRestProxy = WindowsAzure\Common\ServicesBuilder::getInstance()->createTableService($connectionString);
             try {
                 // Create table.
@@ -44,7 +44,7 @@ function ConnectDB(){
         } elseif($cloud == "GCP") {
             
         } else {
-            console.log("### Cloud not recognized! ($cloud)");
+            error_log("### Cloud not recognized! ($cloud)");
         }
     } else {
         // MongoDB
