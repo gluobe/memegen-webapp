@@ -89,7 +89,7 @@ YOURID="<your_ID>"
   systemctl restart apache2
   
 # Edit site's config.php file
-  sed -i "s@^\$awsRegion.*@\$awsRegion = \"$MYREGION\"; # (Altered by sed)@g" /var/www/html/config.php
+  sed -i "s@^\$region.*@\$region = \"$MYREGION\"; # (Altered by sed)@g" /var/www/html/config.php
   sed -i 's@^$remoteData.*@$remoteData = true; # DynamoDB (Altered by sed)@g' /var/www/html/config.php
   sed -i 's@^$remoteFiles.*@$remoteFiles = true; # S3 (Altered by sed)@g' /var/www/html/config.php
   sed -i "s@^\$yourId.*@\$yourId = \"$YOURID\"; # (Altered by sed)@g" /var/www/html/config.php

@@ -16,15 +16,25 @@ ini_set("display_errors", "On");
 // Connect to the database, either mongodb or dynamodb
 function ConnectDB(){
     global $m;
-    global $awsRegion;
+    global $cloud;
+    global $region;
     global $remoteData;
 
     if($remoteData){
-        // DynamoDB
-        $m = Aws\DynamoDb\DynamoDbClient::factory(array(
-            'region'  => (string)$awsRegion,
-            'version' => "latest"
-        ));
+        console.log("### Cloud: $cloud");
+        if($cloud == "AWS"){
+            // DynamoDB
+            $m = Aws\DynamoDb\DynamoDbClient::factory(array(
+                'region'  => (string)$region,
+                'version' => "latest"
+            ));
+        } elseif($cloud == "AZ") {
+            console.log("### bork");
+        } elseif($cloud == "GCP") {
+            
+        } else {
+            console.log("### Cloud not recognized! ($cloud)");
+        }
     } else {
         // MongoDB
         $username="student";
@@ -38,8 +48,9 @@ function ConnectDB(){
 // Inserts a meme name and current date into the database, either mongodb or dynamodb
 function InsertMemes($imageName,$url){
     global $m;
+    global $cloud;
     global $remoteData;
-    global $dynamoDBTable;
+    global $remoteTableName;
 
     $rand = rand(1,99999999);
     $time = time();
@@ -48,12 +59,12 @@ function InsertMemes($imageName,$url){
         // DynamoDB
             //get length of db
             $iterator = $m->getIterator('Scan', array(
-              'TableName' => "$dynamoDBTable"
+              'TableName' => "$remoteTableName"
             ));
             $id = (string)$time.(string)$rand;
             // Insert data in the images table
             $insertResult = $m->putItem(array(
-                'TableName' => "$dynamoDBTable",
+                'TableName' => "$remoteTableName",
                 'Item' => array(
                     'id'      => array('N' => (string)$id),
                     'name'    => array('S' => $imageName),
@@ -77,8 +88,9 @@ function InsertMemes($imageName,$url){
 // Gets all memes and encodes and echo's it so ajax can catch it.
 function GetMemes(){
     global $m;
-    global $s3Bucket;
-    global $dynamoDBTable;
+    global $cloud;
+    global $remoteBucketName;
+    global $remoteTableName;
     global $remoteFiles;
     global $remoteData;
 
@@ -86,7 +98,7 @@ function GetMemes(){
     if($remoteData){
         // DynamoDB
         $iterator = $m->getIterator('Scan', array(
-          'TableName' => "$dynamoDBTable"
+          'TableName' => "$remoteTableName"
         ));
 
         echo json_encode(iterator_to_array($iterator));
@@ -104,9 +116,10 @@ function GetMemes(){
 // Generates a meme with the python script and either puts it locally or in an S3 bucket
 function generateMeme($top, $bot, $imgname){
   global $m;
-  global $s3Bucket;
+  global $cloud;
+  global $remoteBucketName;
   global $remoteFiles;
-  global $awsRegion;
+  global $region;
   # Save current dir and go into python dir
     $olddir = getcwd();
     chdir("meme-generator");
@@ -137,7 +150,7 @@ function generateMeme($top, $bot, $imgname){
     if($remoteFiles){
         // sync to s3
         $sdk = new Aws\Sdk([
-            'region'   => (string)$awsRegion,
+            'region'   => (string)$region,
             'version'  => 'latest',
         ]);
         // Use an Aws\Sdk class to create the S3Client object.
@@ -145,13 +158,13 @@ function generateMeme($top, $bot, $imgname){
 
         // Send a PutObject request and get the result object.
         $result = $s3Client->putObject([
-            'Bucket' => $s3Bucket,
+            'Bucket' => $remoteBucketName,
             'Key'    => $imgnametargetwithext,
             'Body'   => $image
         ]);
 
         // Get the url from the s3 stored image.
-        $url = $s3Client->getObjectUrl ( $s3Bucket, $imgnametargetwithext );
+        $url = $s3Client->getObjectUrl ( $remoteBucketName, $imgnametargetwithext );
 
         // Delete temporary file
         unlink("/var/www/html/meme-generator/memes/".$imgnametargetwithext);

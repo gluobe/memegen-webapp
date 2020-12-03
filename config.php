@@ -1,33 +1,41 @@
 <?php
 
-#####################
-## Global Settings ##
-#####################
-
-$yourId = "<your_ID>";
-
-$awsRegion = "eu-west-1"; # Ireland
-#$awsRegion = "us-east-2"; # Ohio
-
-$dynamoDBTable = "lab-images-table-$yourId"; # not using cloudformation
-#$dynamoDBTable = "lab-cf-images-table-$yourId"; # using cloudformation
-
-$s3Bucket = "lab-images-bkt-$yourId"; # not using cloudformation
-#$s3Bucket = "lab-cf-images-bkt-$yourId"; # using cloudformation 
-
 ###################
 ## Site Settings ##
 ###################
 
-# Wether to save data locally (mongodb) or remotely (dynamodb)
-$remoteData = false; # MongoDB
-#$remoteData = true; # DynamoDB
+$yourId = "<your_ID>";
 
-# Wether to save the memes locally or remotely (s3)
-$remoteFiles = false; # locally
-#$remoteFiles = true; # s3
+$cloud = "";
+#$cloud = "AWS";
+#$cloud = "AZ";
+#$cloud = "GCP";
 
-# Wether to set site color to blue or green (used to differentiate sites from ELB)
+$region = "";
+#$region = "eu-west-1"; # AWS Ireland
+#$region = "westeurope"; # AZ Netherlands
+
+// We use "table" as a general location to store meme data. This can be aws dynamodb table, az storageaccount table...
+$remoteTableName = "lab-images-table-$yourId"; 
+#$remoteTableName = "lab-cf-images-table-$yourId"; # using aws cloudformation
+#$remoteTableName = "lab-arm-images-table-$yourId"; # using using azure resource manager
+#$remoteTableName = "lab-dm-images-table-$yourId"; # using gcp deployment manager  
+
+// We use "bucket" as a general location to store meme files. This can be aws s3 bucket, az storageaccount blob...
+$remoteBucketName = "lab-images-bkt-$yourId"; 
+#$remoteBucketName = "lab-cf-images-bkt-$yourId"; # using aws cloudformation 
+#$remoteBucketName = "lab-arm-images-bkt-$yourId"; # using azure resource manager
+#$remoteBucketName = "lab-dm-images-bkt-$yourId"; # using gcp deployment manager  
+
+# Wether to save data locally (mongodb) or remotely (cloud)
+$remoteData = false; # local
+#$remoteData = true; # cloud
+
+# Wether to save the memes locally or remotely (cloud)
+$remoteFiles = false; # local
+#$remoteFiles = true; # cloud
+
+# Wether to set site color to blue or green (used to differentiate sites from load balancing)
 $siteColorBlue = false; # Green
 #$siteColorBlue = true; # Blue
 
