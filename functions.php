@@ -222,7 +222,7 @@ function callAPI($method, $url, $headers = false, $data = false, $token = false)
     curl_setopt($curl, CURLOPT_URL, $url);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 
-    error_log("### " . strval($curl))
+    error_log("### " . strval($curl));
     $result = curl_exec($curl);
 
     curl_close($curl);
