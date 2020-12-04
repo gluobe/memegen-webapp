@@ -152,7 +152,7 @@ function GetMemes(){
             }
             error_log("###" . (string)$iterator);
             error_log("###" . strval($iterator));
-            echo json_encode(iterator_to_array($iterator));
+            // echo json_encode(iterator_to_array($iterator));
         } else {
             error_log("### Cloud not recognized! ($cloud)");
         }
