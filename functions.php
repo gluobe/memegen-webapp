@@ -140,7 +140,7 @@ function GetMemes(){
             foreach($entities as $entity){
               error_log("### ".$entity->getPartitionKey().":".$entity->getRowKey());
             }
-            // echo json_encode(iterator_to_array($entities));
+            error_log("### ".json_encode(iterator_to_array($entities)));
         } else {
             error_log("### Cloud not recognized! ($cloud)");
         }
