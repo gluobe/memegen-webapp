@@ -137,11 +137,18 @@ function GetMemes(){
             }
 
             $entities = $result->getEntities();
-            echo $entities;
-            // foreach($entities as $entity){
-            //   error_log("### ".$entity->getPartitionKey().":".$entity->getRowKey().":".$entity->getTimestamp()->format("U").":".$entity->getProperty("name")->getValue().":".$entity->getProperty("date")->getValue());
-            // }
-            // error_log("### ".json_encode($entities));
+            
+            $iterator = [];
+            foreach($entities as $entity){
+              error_log("### ".$entity->getPartitionKey().":".$entity->getRowKey().":".$entity->getTimestamp()->format("U").":".$entity->getProperty("name")->getValue().":".$entity->getProperty("date")->getValue());
+              $iterator.append([
+                                'id'      => array('N' => (string)$entity->getTimestamp()->format("U")),
+                                'name'    => array('S' => $entity->getProperty("name")->getValue()),
+                                'date'    => array('S' => (string)$entity->getTimestamp()->format("U")),
+                                'url'     => array('S' => $entity->getProperty("date")->getValue())
+                              ]);
+            }
+            echo json_encode(iterator_to_array($iterator));
         } else {
             error_log("### Cloud not recognized! ($cloud)");
         }
