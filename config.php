@@ -15,7 +15,7 @@ $region = "";
 #$region = "eu-west-1"; # AWS Ireland
 #$region = "westeurope"; # AZ Netherlands
 
-$azConnectionString = ""
+$azConnectionString = "";
 // $azConnectionString = "DefaultEndpointsProtocol=https;AccountName=[ACCOUNTNAME];AccountKey=[ACCOUNTKEY];EndpointSuffix=core.windows.net"
 
 // We use "table" as a general location to store meme data. This can be aws dynamodb table, az storageaccount table...
