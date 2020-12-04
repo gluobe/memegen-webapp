@@ -31,8 +31,7 @@ function ConnectDB(){
             ));
         } elseif($cloud == "AZ") {
             $httpoutput = callAPI("GET", 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://storage.azure.com/', array('Metadata' => 'true'));
-            error_log("####0 " . "bork", 0);
-            error_log("####3 " . "bork", 3, "/var/log/apache2/error.log");
+            error_log("### " . $httpoutput, 0);
             
             // $tableRestProxy = WindowsAzure\Common\ServicesBuilder::getInstance()->createTableService();
             // try {
