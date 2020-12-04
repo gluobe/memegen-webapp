@@ -223,8 +223,8 @@ function callAPI($method, $url, $headers = false, $data = false, $token = false)
     curl_setopt($curl, CURLOPT_URL, $url);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 
-    error_log("###reg " . $curl)
-    error_log("###0 " . $curl, 0)
+    // error_log("###reg " . $curl)
+    // error_log("###0 " . $curl, 0)
     $result = curl_exec($curl);
 
     curl_close($curl);
