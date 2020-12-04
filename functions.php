@@ -30,7 +30,7 @@ function ConnectDB(){
                 'version' => "latest"
             ));
         } elseif($cloud == "AZ") {
-            $httpoutput = callAPI("GET", 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://storage.azure.com/', array('Metadata' => 'true'));
+            $httpoutput = callAPI("GET", 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://storage.azure.com/', array('Metadata: true'));
             error_log("### " . $httpoutput);
             
             // $tableRestProxy = WindowsAzure\Common\ServicesBuilder::getInstance()->createTableService();
@@ -187,7 +187,7 @@ function generateMeme($top, $bot, $imgname){
 
 // Method:    "POST", "PUT", "GET" etc
 // Url:       "example.com/path"
-// Headers:   array("Metadata" => "true")
+// Headers:   array('Content-type: text/plain', 'Content-length: 100') 
 // Data:      array("param" => "value") ==> index.php?param=value
 // Token:     "ABCDEF124"
 function callAPI($method, $url, $headers = false, $data = false, $token = false)
