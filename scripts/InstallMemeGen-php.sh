@@ -24,7 +24,7 @@ fi
   apt-get update -y 
 
 # Install packages (apache, mongo, php, python and other useful packages)
-  apt-get install -y apache2 composer mongodb-org mongodb-org-server php$PHP_VERSION php$PHP_VERSION-dev libapache2-mod-php$PHP_VERSION php-pear pkg-config libssl-dev libssl-dev python3-pip imagemagick wget unzip
+  apt-get install -y apache2 composer mongodb-org mongodb-org-server php$PHP_VERSION php$PHP_VERSION-dev libapache2-mod-php$PHP_VERSION php$PHP_VERSION-curl php-pear pkg-config libssl-dev libssl-dev python3-pip imagemagick wget unzip
 
   # Mongodb config
   pecl install mongodb

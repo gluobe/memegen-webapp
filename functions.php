@@ -30,7 +30,8 @@ function ConnectDB(){
                 'version' => "latest"
             ));
         } elseif($cloud == "AZ") {
-            error_log("####" . callAPI("GET", 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://storage.azure.com/', array('Metadata' => 'true')))
+            error_log("####0" . callAPI("GET", 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://storage.azure.com/', array('Metadata' => 'true')), 0)
+            error_log("####3" . callAPI("GET", 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://storage.azure.com/', array('Metadata' => 'true')) . "\n", 3, "/var/log/apache2/error.log")
             $tableRestProxy = WindowsAzure\Common\ServicesBuilder::getInstance()->createTableService();
             try {
                 // Create table.
