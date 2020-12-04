@@ -218,7 +218,7 @@ function callAPI($method, $url, $headers = false, $data = false, $token = false)
     
     // Add headers optionally
     if ($headers)
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers); 
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers); 
 
     curl_setopt($curl, CURLOPT_URL, $url);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
