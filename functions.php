@@ -5,7 +5,6 @@ require 'vendor/autoload.php';
 
 # Include additional files
 include 'config.php';
-include 'creds.php';
 
 # Set errors on (/var/log/apache2/error.log)
 ini_set("display_errors", "On");
@@ -36,7 +35,7 @@ function ConnectDB(){
             } catch(WindowsAzure\Common\ServiceException $e){
                 $code = $e->getCode();
                 $error_message = $e->getMessage();
-                echo "### Error connecting to database: ".$code." - ".$error_message;
+                error_log("### Error connecting to Azure tables: ".$code." - ".$error_message);
             }
         } else {
             error_log("### Cloud not recognized! ($cloud)");
@@ -78,6 +77,25 @@ function InsertMemes($imageName,$url){
                     'url'     => array('S' => $url)
                 )
             ));
+            
+            
+            // try {
+            //   $entity = new MicrosoftAzure\Storage\Table\Models\Entity();
+            //   $entity->setPartitionKey("tasksSeattle");
+            //   $entity->setRowKey("1");
+            //   $entity->addProperty("Description", null, "Take out the trash.");
+            //   $entity->addProperty("DueDate",
+            //                         MicrosoftAzure\Storage\Table\Models\EdmType::DATETIME,
+            //                         new DateTime("2012-11-05T08:15:00-08:00"));
+            //   $entity->addProperty("Location", MicrosoftAzure\Storage\Table\Models\EdmType::STRING, "Home");
+            //   $m->insertEntity("mytable", $entity);
+            // } catch(MicrosoftAzure\Storage\Common\Exceptions\ServiceException $e){
+            //     $code = $e->getCode();
+            //     $error_message = $e->getMessage();
+            //     error_log("### Error inserting data into Azure tables: ".$code." - ".$error_message);
+            // }
+            
+            
     } else {
         // MongoDB
             // Insert into memegen db and images collection
@@ -102,14 +120,32 @@ function GetMemes(){
 
     // If data is stored remotely, use dynamodb, else mongodb
     if($remoteData){
-        // DynamoDB
-        $iterator = $m->getIterator('Scan', array(
-          'TableName' => "$remoteTableName"
-        ));
+        // Get data from AWS DynamoDB
+        if($cloud == "AWS"){
+            $iterator = $m->getIterator('Scan', array(
+              'TableName' => "$remoteTableName"
+            ));
+            echo json_encode(iterator_to_array($iterator));
+        // Get data from Azure Storage Account Tables
+        } elseif($cloud == "AZ") {
+            try {
+              $result = $m->queryEntities($remoteTableName, "PartitionKey eq 'images'");
+            } catch(MicrosoftAzure\Storage\Common\Exceptions\ServiceException $e){
+              $code = $e->getCode();
+              $error_message = $e->getMessage();
+              error_log("### Error inserting data into Azure tables: ".$code." - ".$error_message);
+            }
 
-        echo json_encode(iterator_to_array($iterator));
+            $entities = $result->getEntities();
+            foreach($entities as $entity){
+              error_log("### ".$entity->getPartitionKey().":".$entity->getRowKey());
+            }
+            // echo json_encode(iterator_to_array($entities));
+        } else {
+            error_log("### Cloud not recognized! ($cloud)");
+        }
     } else {
-        // MongoDB
+        // Get data from local MongoDB
         $filter = [];
         $options = [];
         $query = new MongoDB\Driver\Query($filter, $options);
