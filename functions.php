@@ -20,16 +20,17 @@ function ConnectDB(){
     global $cloud;
     global $region;
     global $remoteData;
+    global $azConnectionString;
 
     if($remoteData){
+        // Connect to AWS DynamoDB
         if($cloud == "AWS"){
-            // Connect to AWS DynamoDB
             $m = Aws\DynamoDb\DynamoDbClient::factory(array(
                 'region'  => (string)$region,
                 'version' => "latest"
             ));
+        // Connect to Azure Storage Account Tables
         } elseif($cloud == "AZ") {
-            // Connect to Azure Storage Account Tables
             try {
                 $m = WindowsAzure\Common\ServicesBuilder::getInstance()->createTableService($azConnectionString);
             } catch(WindowsAzure\Common\ServiceException $e){
@@ -37,13 +38,11 @@ function ConnectDB(){
                 $error_message = $e->getMessage();
                 echo "### Error connecting to database: ".$code." - ".$error_message;
             }
-        } elseif($cloud == "GCP") {
-            
         } else {
             error_log("### Cloud not recognized! ($cloud)");
         }
     } else {
-        // MongoDB
+        // Connect to local MongoDB
         $username="student";
         $password="Cloud247";
         $servername="localhost";
