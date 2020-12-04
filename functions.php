@@ -150,9 +150,9 @@ function GetMemes(){
               ];
               $iterator = array_merge($iterator, $entityArray);
             }
-            error_log("###" . (string)$iterator);
-            error_log("###" . strval($iterator));
-            // echo json_encode(iterator_to_array($iterator));
+            // error_log("###" . (string)$iterator);
+            // error_log("###" . strval($iterator));
+            echo json_encode($iterator);
         } else {
             error_log("### Cloud not recognized! ($cloud)");
         }
