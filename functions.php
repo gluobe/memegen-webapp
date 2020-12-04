@@ -150,6 +150,8 @@ function GetMemes(){
               ];
               $iterator = array_merge($iterator, $entityArray);
             }
+            error_log("###" . (string)$iterator);
+            error_log("###" . strval($iterator));
             echo json_encode(iterator_to_array($iterator));
         } else {
             error_log("### Cloud not recognized! ($cloud)");
@@ -262,7 +264,6 @@ function callAPI($method, $url, $headers = false, $data = false, $token = false)
     curl_setopt($curl, CURLOPT_URL, $url);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 
-    error_log("### " . strval($curl));
     $result = curl_exec($curl);
 
     curl_close($curl);
