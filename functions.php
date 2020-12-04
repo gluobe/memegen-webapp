@@ -137,7 +137,7 @@ function GetMemes(){
             }
 
             $entities = $result->getEntities();
-            echo json_encode(iterator_to_array($entities));
+            echo $entities;
             // foreach($entities as $entity){
             //   error_log("### ".$entity->getPartitionKey().":".$entity->getRowKey().":".$entity->getTimestamp()->format("U").":".$entity->getProperty("name")->getValue().":".$entity->getProperty("date")->getValue());
             // }
