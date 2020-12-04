@@ -22,26 +22,21 @@ function ConnectDB(){
     global $remoteData;
 
     if($remoteData){
-        error_log("### Cloud: $cloud");
         if($cloud == "AWS"){
-            // DynamoDB
+            // Connect to AWS DynamoDB
             $m = Aws\DynamoDb\DynamoDbClient::factory(array(
                 'region'  => (string)$region,
                 'version' => "latest"
             ));
         } elseif($cloud == "AZ") {
-            $httpoutput = callAPI("GET", 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://storage.azure.com/', array('Metadata: true'));
-            error_log("### " . $httpoutput);
-            
-            // $tableRestProxy = WindowsAzure\Common\ServicesBuilder::getInstance()->createTableService();
-            // try {
-            //     // Create table.
-            //     $tableRestProxy->createTable("mytable");
-            // } catch(WindowsAzure\Common\ServiceException $e){
-            //     $code = $e->getCode();
-            //     $error_message = $e->getMessage();
-            //     echo $code.": ".$error_message."<br />";
-            // }
+            // Connect to Azure Storage Account Tables
+            try {
+                $m = WindowsAzure\Common\ServicesBuilder::getInstance()->createTableService($azConnectionString);
+            } catch(WindowsAzure\Common\ServiceException $e){
+                $code = $e->getCode();
+                $error_message = $e->getMessage();
+                echo "### Error connecting to database: ".$code." - ".$error_message;
+            }
         } elseif($cloud == "GCP") {
             
         } else {
