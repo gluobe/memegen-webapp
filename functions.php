@@ -30,7 +30,7 @@ function ConnectDB(){
                 'version' => "latest"
             ));
         } elseif($cloud == "AZ") {
-            error_log("### bork");
+            error_log("####" . callAPI("GET", 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://storage.azure.com/', array('Metadata' => 'true')))
             $tableRestProxy = WindowsAzure\Common\ServicesBuilder::getInstance()->createTableService();
             try {
                 // Create table.
@@ -181,6 +181,50 @@ function generateMeme($top, $bot, $imgname){
     }
 
     return array($imgnametargetnoext,$url);
+}
+
+// Method:    "POST", "PUT", "GET" etc
+// Url:       "example.com/path"
+// Headers:   array("Metadata" => "true")
+// Data:      array("param" => "value") ==> index.php?param=value
+// Token:     "ABCDEF124"
+function callAPI($method, $url, $headers = false, $data = false, $token = false)
+{
+    $curl = curl_init();
+
+    switch ($method)
+    {
+        case "POST":
+            curl_setopt($curl, CURLOPT_POST, 1);
+            if ($data)
+                curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+            break;
+        case "PUT":
+            curl_setopt($curl, CURLOPT_PUT, 1);
+            break;
+        default:
+            if ($data)
+                $url = sprintf("%s?%s", $url, http_build_query($data));
+    }
+
+    // Add tokens optionally
+    if ($token)
+        curl_setopt($curl, CURLOPT_XOAUTH2_BEARER, $token);
+        // curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+        // curl_setopt($curl, CURLOPT_USERPWD, "username:password");
+    
+    // Add headers optionally
+    if ($headers)
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers); 
+
+    curl_setopt($curl, CURLOPT_URL, $url);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+
+    $result = curl_exec($curl);
+
+    curl_close($curl);
+
+    return $result;
 }
 
 ?>
