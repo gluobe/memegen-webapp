@@ -138,7 +138,7 @@ function GetMemes(){
 
             $entities = $result->getEntities();
             foreach($entities as $entity){
-              error_log("### ".$entity->getPartitionKey().":".$entity->getRowKey());
+              echo "### ".$entity->getPartitionKey().":".$entity->getRowKey();
             }
             error_log("### ".json_encode(iterator_to_array($entities)));
         } else {
