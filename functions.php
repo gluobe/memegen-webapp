@@ -232,21 +232,21 @@ function generateMeme($top, $bot, $imgname){
             try {
                 // Upload blob to blob container
                 $b->createBlockBlob($remoteBucketName, $imgnametargetwithext, $image);
+                // Set content type correctly
+                $opts = new MicrosoftAzure\Storage\Blob\Models\SetBlobPropertiesOptions();
+                $opts->setContentType('image/png');
+                $b->setBlobProperties($remoteBucketName, $imgnametargetwithext, $opts);
             } catch(MicrosoftAzure\Storage\Common\ServiceException $e){
-                error_log("### Error uploading data to Azure storage account blob container: ".$e->getCode()." - ".$e->getMessage());
+                error_log("### Error uploading file to Azure storage account blob container: ".$e->getCode()." - ".$e->getMessage());
             }
             
             try {
                 // Get blob data to pull blob URL
                 $blob = $b->getBlob($remoteBucketName, $imgnametargetwithext);
-                // Set content type correctly
-                $opts = new MicrosoftAzure\Storage\Blob\Models\SetBlobPropertiesOptions();
-                $opts->setContentType('image/png');
-                $b->setBlobProperties($remoteBucketName, $imgnametargetwithext, $opts);
                 // Set url 
                 $url = $blob->getUrl();
             } catch(MicrosoftAzure\Storage\Common\ServiceException $e){
-                error_log("### Error getting blob properties after uploading image to Azure storage account blob container: ".$e->getCode()." - ".$e->getMessage());
+                error_log("### Error getting blob properties after uploading file to Azure storage account blob container: ".$e->getCode()." - ".$e->getMessage());
             }
             
         } else {
@@ -257,6 +257,7 @@ function generateMeme($top, $bot, $imgname){
         unlink("/var/www/html/meme-generator/memes/".$imgnametargetwithext);
     }
 
+    // Return base filename and image url to the web page
     return array($imgnametargetnoext,$url);
 }
 
