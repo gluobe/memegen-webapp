@@ -244,7 +244,7 @@ function generateMeme($top, $bot, $imgname){
                 // Get blob data to pull blob URL
                 $blob = $b->getBlob($remoteBucketName, $imgnametargetwithext);
                 // Set url 
-                error_log("### ".json_encode($blob->getMetadata())." //////// ".json_encode($blob->getProperties());
+                error_log("### ".json_encode($blob->getMetadata())." //////// ".json_encode($blob->getProperties()));
                 $url = $blob->getUrl();
             } catch(MicrosoftAzure\Storage\Common\ServiceException $e){
                 error_log("### Error getting blob properties after uploading file to Azure storage account blob container: ".$e->getCode()." - ".$e->getMessage());
