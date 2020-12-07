@@ -90,7 +90,7 @@ function InsertMemes($imageName,$url){
             } catch(MicrosoftAzure\Storage\Common\Exceptions\ServiceException $e){
                 $code = $e->getCode();
                 $error_message = $e->getMessage();
-                error_log("### Error inserting data into Azure tables: ".$code." - ".$error_message);
+                error_log("### Error inserting data into Azure storage account tables: ".$code." - ".$error_message);
             }
 
         } else {
@@ -135,7 +135,7 @@ function GetMemes(){
             } catch(MicrosoftAzure\Storage\Common\Exceptions\ServiceException $e){
                 $code = $e->getCode();
                 $error_message = $e->getMessage();
-                error_log("### Error inserting data into Azure tables: ".$code." - ".$error_message);
+                error_log("### Error getting data from Azure storage account tables: ".$code." - ".$error_message);
             }
             $entities = $result->getEntities();
             
@@ -225,62 +225,25 @@ function generateMeme($top, $bot, $imgname){
             
         // Get data from Azure Storage Account Tables
         } elseif($cloud == "AZ") {
-            
-            
+            try {
+                $blobClient = BlobRestProxy::createBlobService($azConnectionString);
+                // Upload blob to blob container
+                $blobClient->createBlockBlob($remoteBucketName, $imgnametargetwithext, $image);
+            } catch(MicrosoftAzure\Storage\Common\ServiceException $e){
+                $code = $e->getCode();
+                $error_message = $e->getMessage();
+                error_log("### Error Uploading data to Azure storage account blob container: ".$code." - ".$error_message);
+            }
             
         } else {
             error_log("### Cloud not recognized! ($cloud)");
         }
           
-        // Delete temporary file
+        // Delete temporary file because it was uploaded and no longer needed locally
         unlink("/var/www/html/meme-generator/memes/".$imgnametargetwithext);
     }
 
     return array($imgnametargetnoext,$url);
 }
-
-// Method:    "POST", "PUT", "GET" etc
-// Url:       "example.com/path"
-// Headers:   array('Content-type: text/plain', 'Content-length: 100') 
-// Data:      array("param" => "value") ==> index.php?param=value
-// Token:     "ABCDEF124"
-// function callAPI($method, $url, $headers = false, $data = false, $token = false)
-// {
-//     $curl = curl_init();
-// 
-//     switch ($method)
-//     {
-//         case "POST":
-//             curl_setopt($curl, CURLOPT_POST, 1);
-//             if ($data)
-//                 curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-//             break;
-//         case "PUT":
-//             curl_setopt($curl, CURLOPT_PUT, 1);
-//             break;
-//         default:
-//             if ($data)
-//                 $url = sprintf("%s?%s", $url, http_build_query($data));
-//     }
-// 
-//     // Add tokens optionally
-//     if ($token)
-//         curl_setopt($curl, CURLOPT_XOAUTH2_BEARER, $token);
-//         // curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-//         // curl_setopt($curl, CURLOPT_USERPWD, "username:password");
-// 
-//     // Add headers optionally
-//     if ($headers)
-//         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers); 
-// 
-//     curl_setopt($curl, CURLOPT_URL, $url);
-//     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-// 
-//     $result = curl_exec($curl);
-// 
-//     curl_close($curl);
-// 
-//     return $result;
-// }
 
 ?>
