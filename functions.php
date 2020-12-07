@@ -35,9 +35,7 @@ function ConnectDB(){
             try {
                 $m = WindowsAzure\Common\ServicesBuilder::getInstance()->createTableService($azConnectionString);
             } catch(WindowsAzure\Common\ServiceException $e){
-                $code = $e->getCode();
-                $error_message = $e->getMessage();
-                error_log("### Error connecting to Azure tables: ".$code." - ".$error_message);
+                error_log("### Error connecting to Azure tables: ".$e->getCode()." - ".$e->getMessage());
             }
             
         } else {
@@ -89,9 +87,7 @@ function InsertMemes($imageName,$url){
                 $entity->addProperty("url", null, "$url");
                 $m->insertEntity($remoteTableName, $entity);
             } catch(MicrosoftAzure\Storage\Common\Exceptions\ServiceException $e){
-                $code = $e->getCode();
-                $error_message = $e->getMessage();
-                error_log("### Error inserting data into Azure storage account tables: ".$code." - ".$error_message);
+                error_log("### Error inserting data into Azure storage account tables: ".$e->getCode()." - ".$e->getMessage());
             }
 
         } else {
@@ -134,9 +130,7 @@ function GetMemes(){
             try {
                 $result = $m->queryEntities($remoteTableName, "PartitionKey eq 'images'");
             } catch(MicrosoftAzure\Storage\Common\Exceptions\ServiceException $e){
-                $code = $e->getCode();
-                $error_message = $e->getMessage();
-                error_log("### Error getting data from Azure storage account tables: ".$code." - ".$error_message);
+                error_log("### Error getting data from Azure storage account tables: ".$e->getCode()." - ".$e->getMessage());
             }
             $entities = $result->getEntities();
             
@@ -226,26 +220,28 @@ function generateMeme($top, $bot, $imgname){
             
         // Get data from Azure Storage Account Tables
         } elseif($cloud == "AZ") {
+            global $b;
+            
+            try {
+                $b = WindowsAzure\Common\ServicesBuilder::getInstance()->createBlobService($azConnectionString);
+            } catch(WindowsAzure\Common\ServiceException $e){
+                error_log("### Error creating Azure blob instance: ".$e->getCode()." - ".$e->getMessage());
+            }
+            
             try {
                 // Upload blob to blob container
-                $blobClient = MicrosoftAzure\Storage\Blob\BlobRestProxy::createBlobService($azConnectionString);
-                $blobClient->createBlockBlob($remoteBucketName, $imgnametargetwithext, $image);
+                $b->createBlockBlob($remoteBucketName, $imgnametargetwithext, $image);
             } catch(MicrosoftAzure\Storage\Common\ServiceException $e){
-                $code = $e->getCode();
-                $error_message = $e->getMessage();
-                error_log("### Error Uploading data to Azure storage account blob container: ".$code." - ".$error_message);
+                error_log("### Error uploading data to Azure storage account blob container: ".$e->getCode()." - ".$e->getMessage());
             }
             
             try {
                 // Get blob data to pull blob URL
-                $blobClient = MicrosoftAzure\Storage\Blob\BlobRestProxy::createBlobService($azConnectionString);
-                $containerClient = $blobClient->getContainerClient($remoteBucketName);
+                $containerClient = $b->getContainerClient($remoteBucketName);
                 $blob = $containerClient->getBlockBlobClient($imgnametargetwithext);
                 $url = $blob->getUrl();
             } catch(MicrosoftAzure\Storage\Common\ServiceException $e){
-                $code = $e->getCode();
-                $error_message = $e->getMessage();
-                error_log("### Error getting blob properties after uploading image to Azure storage account blob container: ".$code." - ".$error_message);
+                error_log("### Error getting blob properties after uploading image to Azure storage account blob container: ".$e->getCode()." - ".$e->getMessage());
             }
             
             
