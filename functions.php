@@ -241,7 +241,7 @@ function generateMeme($top, $bot, $imgname){
             }
             
             // Get storage account name from the azure connection string
-            $storageAccountNameKeyLength = strlen("AccountName=")-1;
+            $storageAccountNameKeyLength = strlen("AccountName=");
             $storageAccountNameKeyValue = explode(';',$azConnectionString)[1];
             $storageAccountName = substr($storageAccountNameKeyValue, $storageAccountNameKeyLength);
             error_log("### storage account name: ". $storageAccountName);
