@@ -242,7 +242,7 @@ function generateMeme($top, $bot, $imgname){
                 // Set content type correctly
                 $opts = new MicrosoftAzure\Storage\Blob\Models\SetBlobPropertiesOptions();
                 $opts->setContentType('image/png');
-                $b->SetBlobPropertiesOptions($remoteBucketName, $imgnametargetwithext, $opts);
+                $b->setBlobProperties($remoteBucketName, $imgnametargetwithext, $opts);
                 // Set url 
                 $url = $blob->getUrl();
             } catch(MicrosoftAzure\Storage\Common\ServiceException $e){
