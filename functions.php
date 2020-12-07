@@ -240,15 +240,19 @@ function generateMeme($top, $bot, $imgname){
                 error_log("### Error uploading file to Azure storage account blob container: ".$e->getCode()." - ".$e->getMessage());
             }
             
-            try {
-                // Get blob data to pull blob URL
-                $blob = $b->getBlob($remoteBucketName, $imgnametargetwithext);
-                // Set url 
-                error_log("### ".json_encode($blob->getMetadata())." //////// ".json_encode($blob->getProperties()));
-                $url = $blob->getUrl();
-            } catch(MicrosoftAzure\Storage\Common\ServiceException $e){
-                error_log("### Error getting blob properties after uploading file to Azure storage account blob container: ".$e->getCode()." - ".$e->getMessage());
-            }
+            // Get storage account name from the azure connection string
+            $storageAccountNameKeyLength = strlen("AccountName=")-1;
+            $storageAccountNameKeyValue = explode(';',$azConnectionString)[1];
+            $storageAccountName = substr($storageAccountNameKeyValue, $storageAccountNameKeyLength);
+            error_log("### storage account name: ". $storageAccountName);
+            
+            // Set url
+            $url = "https://$storageAccountName.blob.core.windows.net/$remoteBucketName/$imgnametargetwithext"
+            error_log("### url: ". $url);
+            
+            // Doesn't seem possible to just get a url.... https://stackoverflow.com/questions/27473802/getting-the-url-of-a-blob-just-uploaded-to-azure-storage-via-php
+            //     $blob = $b->getBlob($remoteBucketName, $imgnametargetwithext);
+            //     $url = $blob->getUrl();
             
         } else {
             error_log("### Cloud not recognized! ($cloud)");
