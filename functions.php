@@ -84,8 +84,9 @@ function InsertMemes($imageName,$url){
                 $entity = new MicrosoftAzure\Storage\Table\Models\Entity();
                 $entity->setPartitionKey("images");
                 $entity->setRowKey("$id");
-                $entity->addProperty("name", null, "badluckbrian");
+                $entity->addProperty("name", null, "$imageName");
                 $entity->addProperty("date", null, "$time");
+                $entity->addProperty("url", null, "$url");
                 $m->insertEntity($remoteTableName, $entity);
             } catch(MicrosoftAzure\Storage\Common\Exceptions\ServiceException $e){
                 $code = $e->getCode();
