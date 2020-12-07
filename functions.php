@@ -170,12 +170,13 @@ function GetMemes(){
 
 // Generates a meme with the python script and either puts it locally or in an S3 bucket
 function generateMeme($top, $bot, $imgname){
-  global $m;
-  global $cloud;
-  global $remoteBucketName;
-  global $remoteFiles;
-  global $region;
-  # Save current dir and go into python dir
+    global $m;
+    global $cloud;
+    global $remoteBucketName;
+    global $remoteFiles;
+    global $region;
+    
+    # Save current dir and go into python dir
     $olddir = getcwd();
     chdir("meme-generator");
 
@@ -203,24 +204,34 @@ function generateMeme($top, $bot, $imgname){
     $url = "no url";
 
     if($remoteFiles){
-        // sync to s3
-        $sdk = new Aws\Sdk([
-            'region'   => (string)$region,
-            'version'  => 'latest',
-        ]);
-        // Use an Aws\Sdk class to create the S3Client object.
-        $s3Client = $sdk->createS3();
+      
+        // Get data from AWS DynamoDB
+        if($cloud == "AWS"){
+            $sdk = new Aws\Sdk([
+                'region'   => (string)$region,
+                'version'  => 'latest',
+            ]);
+            $s3Client = $sdk->createS3();
 
-        // Send a PutObject request and get the result object.
-        $result = $s3Client->putObject([
-            'Bucket' => $remoteBucketName,
-            'Key'    => $imgnametargetwithext,
-            'Body'   => $image
-        ]);
+            // Upload the file to S3
+            $s3Client->putObject([
+                'Bucket' => $remoteBucketName,
+                'Key'    => $imgnametargetwithext,
+                'Body'   => $image
+            ]);
 
-        // Get the url from the s3 stored image.
-        $url = $s3Client->getObjectUrl ( $remoteBucketName, $imgnametargetwithext );
-
+            // Get the url from the s3 stored image.
+            $url = $s3Client->getObjectUrl ( $remoteBucketName, $imgnametargetwithext );
+            
+        // Get data from Azure Storage Account Tables
+        } elseif($cloud == "AZ") {
+            
+            
+            
+        } else {
+            error_log("### Cloud not recognized! ($cloud)");
+        }
+          
         // Delete temporary file
         unlink("/var/www/html/meme-generator/memes/".$imgnametargetwithext);
     }
