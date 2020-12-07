@@ -148,9 +148,9 @@ function GetMemes(){
                 'date'    => array('S' => (string)$entity->getTimestamp()->format("U")),
                 'url'     => array('S' => $entity->getProperty("date")->getValue())
               ];
-              error_log("###before " . (string)$iterator);
+              error_log("###before " . json_encode($iterator));
               $iterator = array_merge($iterator, $entityArray);
-              error_log("###after" . (string)$iterator);
+              error_log("###after" . json_encode($iterator));
             }
             // error_log("###" . (string)$iterator);
             // error_log("###" . strval($iterator));
