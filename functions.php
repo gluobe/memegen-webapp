@@ -238,8 +238,7 @@ function generateMeme($top, $bot, $imgname){
             
             try {
                 // Get blob data to pull blob URL
-                $containerClient = $b->getContainerClient($remoteBucketName);
-                $blob = $containerClient->getBlockBlobClient($imgnametargetwithext);
+                $blob = $b->getBlob($remoteBucketName, $imgnametargetwithext);
                 // Set content type correctly
                 $opts = new SetBlobPropertiesOptions();
                 $opts->setContentType('image/png');
