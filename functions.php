@@ -170,6 +170,7 @@ function generateMeme($top, $bot, $imgname){
     global $remoteBucketName;
     global $remoteFiles;
     global $region;
+    global $azConnectionString;
     
     # Save current dir and go into python dir
     $olddir = getcwd();
