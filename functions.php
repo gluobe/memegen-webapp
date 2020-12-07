@@ -232,6 +232,10 @@ function generateMeme($top, $bot, $imgname){
             try {
                 // Upload blob to blob container
                 $b->createBlockBlob($remoteBucketName, $imgnametargetwithext, $image);
+                // Set content type correctly
+                $opts = new SetBlobPropertiesOptions();
+                $opts->setContentType('image/png');
+                $b->setBlobProperties($remoteBucketName, $imgnametargetwithext, $opts);
             } catch(MicrosoftAzure\Storage\Common\ServiceException $e){
                 error_log("### Error uploading data to Azure storage account blob container: ".$e->getCode()." - ".$e->getMessage());
             }
@@ -244,7 +248,6 @@ function generateMeme($top, $bot, $imgname){
             } catch(MicrosoftAzure\Storage\Common\ServiceException $e){
                 error_log("### Error getting blob properties after uploading image to Azure storage account blob container: ".$e->getCode()." - ".$e->getMessage());
             }
-            
             
         } else {
             error_log("### Cloud not recognized! ($cloud)");
