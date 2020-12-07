@@ -22,12 +22,14 @@ function ConnectDB(){
     global $azConnectionString;
 
     if($remoteData){
+      
         // Connect to AWS DynamoDB
         if($cloud == "AWS"){
             $m = Aws\DynamoDb\DynamoDbClient::factory(array(
                 'region'  => (string)$region,
                 'version' => "latest"
             ));
+            
         // Connect to Azure Storage Account Tables
         } elseif($cloud == "AZ") {
             try {
@@ -37,6 +39,7 @@ function ConnectDB(){
                 $error_message = $e->getMessage();
                 error_log("### Error connecting to Azure tables: ".$code." - ".$error_message);
             }
+            
         } else {
             error_log("### Cloud not recognized! ($cloud)");
         }
@@ -62,15 +65,10 @@ function InsertMemes($imageName,$url){
     $id = (string)$time.(string)$rand;
 
     if($remoteData){
-        // Get data from AWS DynamoDB
+      
+        // Insert data to AWS DynamoDB
         if($cloud == "AWS"){
-            // DynamoDB
-            //get length of db
-            $iterator = $m->getIterator('Scan', array(
-              'TableName' => "$remoteTableName"
-            ));
-            // Insert data in the images table
-            $insertResult = $m->putItem(array(
+            $m->putItem(array(
                 'TableName' => "$remoteTableName",
                 'Item' => array(
                     'id'      => array('N' => (string)$id),
@@ -79,7 +77,8 @@ function InsertMemes($imageName,$url){
                     'url'     => array('S' => $url)
                 )
             ));
-        // Get data from Azure Storage Account Tables
+            
+        // Insert data to Azure Storage Account Tables
         } elseif($cloud == "AZ") {
             try {
                 $entity = new MicrosoftAzure\Storage\Table\Models\Entity();
@@ -93,6 +92,7 @@ function InsertMemes($imageName,$url){
                 $error_message = $e->getMessage();
                 error_log("### Error inserting data into Azure tables: ".$code." - ".$error_message);
             }
+
         } else {
             error_log("### Cloud not recognized! ($cloud)");
         }
@@ -120,15 +120,16 @@ function GetMemes(){
 
     // If data is stored remotely, use dynamodb, else mongodb
     if($remoteData){
+      
         // Get data from AWS DynamoDB
         if($cloud == "AWS"){
             $iterator = $m->getIterator('Scan', array(
               'TableName' => "$remoteTableName"
             ));
             echo json_encode(iterator_to_array($iterator));
+      
         // Get data from Azure Storage Account Tables
         } elseif($cloud == "AZ") {
-            // Get the data
             try {
                 $result = $m->queryEntities($remoteTableName, "PartitionKey eq 'images'");
             } catch(MicrosoftAzure\Storage\Common\Exceptions\ServiceException $e){
@@ -141,17 +142,18 @@ function GetMemes(){
             // Format the data in a way that works with the site (index.php). index.php was first made with AWS and DynamoDB, so we use that format.
             $iterator = [];
             foreach($entities as $entity){
-                $entityArray = [
+                $entityArray = array(
                   'id'      => array('N' => (string)$entity->getTimestamp()->format("U")),
                   'name'    => array('S' => $entity->getProperty("name")->getValue()),
                   'date'    => array('S' => (string)$entity->getTimestamp()->format("U")),
                   'url'     => array('S' => $entity->getProperty("date")->getValue())
-                ];
+                );
 
                 // Append entityArray element to iterator array.
                 $iterator[] = $entityArray;
             }
             echo json_encode($iterator);
+            
         } else {
             error_log("### Cloud not recognized! ($cloud)");
         }
