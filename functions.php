@@ -142,14 +142,14 @@ function GetMemes(){
             foreach($entities as $entity){
               error_log("### ".$entity->getPartitionKey().":".$entity->getRowKey().":".$entity->getTimestamp()->format("U").":".$entity->getProperty("name")->getValue().":".$entity->getProperty("date")->getValue());
               
-              $entityArray = [
+              $entityArray = {
                 'id'      => array('N' => (string)$entity->getTimestamp()->format("U")),
                 'name'    => array('S' => $entity->getProperty("name")->getValue()),
                 'date'    => array('S' => (string)$entity->getTimestamp()->format("U")),
                 'url'     => array('S' => $entity->getProperty("date")->getValue())
-              ];
+              };
               error_log("###before " . json_encode($iterator));
-              $iterator = array_merge($iterator, $entityArray);
+              $iterator[] = $entityArray;
               error_log("###after" . json_encode($iterator));
             }
             // error_log("###" . (string)$iterator);
