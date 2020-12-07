@@ -244,11 +244,9 @@ function generateMeme($top, $bot, $imgname){
             $storageAccountNameKeyLength = strlen("AccountName=");
             $storageAccountNameKeyValue = explode(';',$azConnectionString)[1];
             $storageAccountName = substr($storageAccountNameKeyValue, $storageAccountNameKeyLength);
-            error_log("### storage account name: ". $storageAccountName);
             
             // Set url
             $url = "https://$storageAccountName.blob.core.windows.net/$remoteBucketName/$imgnametargetwithext";
-            error_log("### url: ". $url);
             
             // Doesn't seem possible to just get a url.... https://stackoverflow.com/questions/27473802/getting-the-url-of-a-blob-just-uploaded-to-azure-storage-via-php
             //     $blob = $b->getBlob($remoteBucketName, $imgnametargetwithext);
