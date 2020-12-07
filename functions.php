@@ -59,14 +59,16 @@ function InsertMemes($imageName,$url){
 
     $rand = rand(1,99999999);
     $time = time();
+    $id = (string)$time.(string)$rand;
 
     if($remoteData){
-        // DynamoDB
+        // Get data from AWS DynamoDB
+        if($cloud == "AWS"){
+            // DynamoDB
             //get length of db
             $iterator = $m->getIterator('Scan', array(
               'TableName' => "$remoteTableName"
             ));
-            $id = (string)$time.(string)$rand;
             // Insert data in the images table
             $insertResult = $m->putItem(array(
                 'TableName' => "$remoteTableName",
@@ -77,35 +79,33 @@ function InsertMemes($imageName,$url){
                     'url'     => array('S' => $url)
                 )
             ));
-            
-            
-            // try {
-            //   $entity = new MicrosoftAzure\Storage\Table\Models\Entity();
-            //   $entity->setPartitionKey("tasksSeattle");
-            //   $entity->setRowKey("1");
-            //   $entity->addProperty("Description", null, "Take out the trash.");
-            //   $entity->addProperty("DueDate",
-            //                         MicrosoftAzure\Storage\Table\Models\EdmType::DATETIME,
-            //                         new DateTime("2012-11-05T08:15:00-08:00"));
-            //   $entity->addProperty("Location", MicrosoftAzure\Storage\Table\Models\EdmType::STRING, "Home");
-            //   $m->insertEntity("mytable", $entity);
-            // } catch(MicrosoftAzure\Storage\Common\Exceptions\ServiceException $e){
-            //     $code = $e->getCode();
-            //     $error_message = $e->getMessage();
-            //     error_log("### Error inserting data into Azure tables: ".$code." - ".$error_message);
-            // }
-            
-            
+        // Get data from Azure Storage Account Tables
+        } elseif($cloud == "AZ") {
+            try {
+                $entity = new MicrosoftAzure\Storage\Table\Models\Entity();
+                $entity->setPartitionKey("images");
+                $entity->setRowKey("$id");
+                $entity->addProperty("name", null, "badluckbrian");
+                $entity->addProperty("date", null, "$time");
+                $m->insertEntity($remoteTableName, $entity);
+            } catch(MicrosoftAzure\Storage\Common\Exceptions\ServiceException $e){
+                $code = $e->getCode();
+                $error_message = $e->getMessage();
+                error_log("### Error inserting data into Azure tables: ".$code." - ".$error_message);
+            }
+        } else {
+            error_log("### Cloud not recognized! ($cloud)");
+        }
     } else {
         // MongoDB
-            // Insert into memegen db and images collection
-            $bulk = new MongoDB\Driver\BulkWrite;
-            $bulk->insert([
-                            'name'  => array('S' => $imageName),
-                            'date'  => array('S' => (string)$time),
-                            'url'     => array('S' => $url)
-                          ]);
-            $m->executeBulkWrite('memegen.images', $bulk);
+        // Insert into memegen db and images collection
+        $bulk = new MongoDB\Driver\BulkWrite;
+        $bulk->insert([
+          'name'  => array('S' => $imageName),
+          'date'  => array('S' => (string)$time),
+          'url'   => array('S' => $url)
+        ]);
+        $m->executeBulkWrite('memegen.images', $bulk);
     }
 }
 
@@ -128,32 +128,29 @@ function GetMemes(){
             echo json_encode(iterator_to_array($iterator));
         // Get data from Azure Storage Account Tables
         } elseif($cloud == "AZ") {
+            // Get the data
             try {
-              $result = $m->queryEntities($remoteTableName, "PartitionKey eq 'images'");
+                $result = $m->queryEntities($remoteTableName, "PartitionKey eq 'images'");
             } catch(MicrosoftAzure\Storage\Common\Exceptions\ServiceException $e){
-              $code = $e->getCode();
-              $error_message = $e->getMessage();
-              error_log("### Error inserting data into Azure tables: ".$code." - ".$error_message);
+                $code = $e->getCode();
+                $error_message = $e->getMessage();
+                error_log("### Error inserting data into Azure tables: ".$code." - ".$error_message);
             }
-
             $entities = $result->getEntities();
             
+            // Format the data in a way that works with the site (index.php). index.php was first made with AWS and DynamoDB, so we use that format.
             $iterator = [];
             foreach($entities as $entity){
-              error_log("### ".$entity->getPartitionKey().":".$entity->getRowKey().":".$entity->getTimestamp()->format("U").":".$entity->getProperty("name")->getValue().":".$entity->getProperty("date")->getValue());
-              
-              $entityArray = [
-                'id'      => array('N' => (string)$entity->getTimestamp()->format("U")),
-                'name'    => array('S' => $entity->getProperty("name")->getValue()),
-                'date'    => array('S' => (string)$entity->getTimestamp()->format("U")),
-                'url'     => array('S' => $entity->getProperty("date")->getValue())
-              ];
-              error_log("###before " . json_encode($iterator));
-              $iterator[] = $entityArray;
-              error_log("###after" . json_encode($iterator));
+                $entityArray = [
+                  'id'      => array('N' => (string)$entity->getTimestamp()->format("U")),
+                  'name'    => array('S' => $entity->getProperty("name")->getValue()),
+                  'date'    => array('S' => (string)$entity->getTimestamp()->format("U")),
+                  'url'     => array('S' => $entity->getProperty("date")->getValue())
+                ];
+
+                // Append entityArray element to iterator array.
+                $iterator[] = $entityArray;
             }
-            // error_log("###" . (string)$iterator);
-            // error_log("###" . strval($iterator));
             echo json_encode($iterator);
         } else {
             error_log("### Cloud not recognized! ($cloud)");
@@ -234,43 +231,43 @@ function generateMeme($top, $bot, $imgname){
 // Headers:   array('Content-type: text/plain', 'Content-length: 100') 
 // Data:      array("param" => "value") ==> index.php?param=value
 // Token:     "ABCDEF124"
-function callAPI($method, $url, $headers = false, $data = false, $token = false)
-{
-    $curl = curl_init();
-
-    switch ($method)
-    {
-        case "POST":
-            curl_setopt($curl, CURLOPT_POST, 1);
-            if ($data)
-                curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-            break;
-        case "PUT":
-            curl_setopt($curl, CURLOPT_PUT, 1);
-            break;
-        default:
-            if ($data)
-                $url = sprintf("%s?%s", $url, http_build_query($data));
-    }
-
-    // Add tokens optionally
-    if ($token)
-        curl_setopt($curl, CURLOPT_XOAUTH2_BEARER, $token);
-        // curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-        // curl_setopt($curl, CURLOPT_USERPWD, "username:password");
-    
-    // Add headers optionally
-    if ($headers)
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers); 
-
-    curl_setopt($curl, CURLOPT_URL, $url);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-
-    $result = curl_exec($curl);
-
-    curl_close($curl);
-
-    return $result;
-}
+// function callAPI($method, $url, $headers = false, $data = false, $token = false)
+// {
+//     $curl = curl_init();
+// 
+//     switch ($method)
+//     {
+//         case "POST":
+//             curl_setopt($curl, CURLOPT_POST, 1);
+//             if ($data)
+//                 curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+//             break;
+//         case "PUT":
+//             curl_setopt($curl, CURLOPT_PUT, 1);
+//             break;
+//         default:
+//             if ($data)
+//                 $url = sprintf("%s?%s", $url, http_build_query($data));
+//     }
+// 
+//     // Add tokens optionally
+//     if ($token)
+//         curl_setopt($curl, CURLOPT_XOAUTH2_BEARER, $token);
+//         // curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+//         // curl_setopt($curl, CURLOPT_USERPWD, "username:password");
+// 
+//     // Add headers optionally
+//     if ($headers)
+//         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers); 
+// 
+//     curl_setopt($curl, CURLOPT_URL, $url);
+//     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+// 
+//     $result = curl_exec($curl);
+// 
+//     curl_close($curl);
+// 
+//     return $result;
+// }
 
 ?>
