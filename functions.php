@@ -226,14 +226,27 @@ function generateMeme($top, $bot, $imgname){
         // Get data from Azure Storage Account Tables
         } elseif($cloud == "AZ") {
             try {
-                $blobClient = BlobRestProxy::createBlobService($azConnectionString);
                 // Upload blob to blob container
+                $blobClient = MicrosoftAzure\Storage\Blob\BlobRestProxy::createBlobService($azConnectionString);
                 $blobClient->createBlockBlob($remoteBucketName, $imgnametargetwithext, $image);
             } catch(MicrosoftAzure\Storage\Common\ServiceException $e){
                 $code = $e->getCode();
                 $error_message = $e->getMessage();
                 error_log("### Error Uploading data to Azure storage account blob container: ".$code." - ".$error_message);
             }
+            
+            try {
+                // Get blob data to pull blob URL
+                $blobClient = MicrosoftAzure\Storage\Blob\BlobRestProxy::createBlobService($azConnectionString);
+                $containerClient = $blobClient->getContainerClient($remoteBucketName);
+                $blob = $containerClient->getBlockBlobClient($imgnametargetwithext);
+                $url = $blob->getUrl();
+            } catch(MicrosoftAzure\Storage\Common\ServiceException $e){
+                $code = $e->getCode();
+                $error_message = $e->getMessage();
+                error_log("### Error getting blob properties after uploading image to Azure storage account blob container: ".$code." - ".$error_message);
+            }
+            
             
         } else {
             error_log("### Cloud not recognized! ($cloud)");
