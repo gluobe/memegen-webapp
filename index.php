@@ -34,6 +34,7 @@
 								$.each( resultSorted, function( key, value ) {
 									if(remoteFiles == false){
 										// Take files from local filesystem
+                    console.log("<div class=\"col-md-4\"><img src=\"" + dirname + value.name.S + ".jpg\" alt=\"" + dirname + value.name.S + ".jpg\" height=\"400\"/></div>");
 										$("<div class=\"col-md-4\"><img src=\"" + dirname + value.name.S + ".jpg\" alt=\"" + dirname + value.name.S + ".jpg\" height=\"400\"/></div>").prependTo(".createdMemes");
 									}else{
 										// Take files from s3 bucket.
@@ -85,7 +86,7 @@
 											// Blue
 											$(".generateButton").attr("class", "btn btn-lg btn-primary btn-block marginTop generateButton");
 									} else {
-											// green
+											// Green
 											$(".generateButton").attr("class", "btn btn-lg btn-success btn-block marginTop generateButton");
 									}
 							},
@@ -111,7 +112,6 @@
 							error: function(result){
 								// Log
 								console.log( "Memes get failed: " + result );
-								console.log( "Check if you ran `composer` right for the PHP AWS SDK.");
 							}
 						});
 
