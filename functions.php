@@ -140,8 +140,8 @@ function GetMemes(){
                 $entityArray = array(
                   'id'      => array('N' => (string)$entity->getTimestamp()->format("U")),
                   'name'    => array('S' => $entity->getProperty("name")->getValue()),
-                  'date'    => array('S' => (string)$entity->getTimestamp()->format("U")),
-                  'url'     => array('S' => $entity->getProperty("date")->getValue())
+                  'date'    => array('S' => $entity->getProperty("date")->getValue()),
+                  'url'     => array('S' => $entity->getProperty("url")->getValue())
                 );
 
                 // Append entityArray element to iterator array.
@@ -262,6 +262,7 @@ function generateMeme($top, $bot, $imgname){
 
     // Return base filename and image url to the web page
     return array($imgnametargetnoext,$url);
+    
 }
 
 ?>
