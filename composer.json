@@ -1,5 +1,7 @@
 {
     "require": {
-        "microsoft/windowsazure": "^0.5"
+        "microsoft/azure-storage-blob": "*",
+        "microsoft/azure-storage-table": "*",
+        "aws/aws-sdk-php": "*"
     }
 }

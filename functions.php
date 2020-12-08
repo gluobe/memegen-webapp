@@ -33,7 +33,7 @@ function ConnectDB(){
         // Connect to Azure Storage Account Tables
         } elseif($cloud == "AZ") {
             try {
-                $m = WindowsAzure\Common\ServicesBuilder::getInstance()->createTableService($azConnectionString);
+                $m = MicrosoftAzure\Storage\Table\TableRestProxy::createTableService($azConnectionString);
             } catch(WindowsAzure\Common\ServiceException $e){
                 error_log("### Error connecting to Azure tables: ".$e->getCode()." - ".$e->getMessage());
             }
@@ -224,7 +224,7 @@ function generateMeme($top, $bot, $imgname){
             global $b;
             
             try {
-                $b = WindowsAzure\Common\ServicesBuilder::getInstance()->createBlobService($azConnectionString);
+                $b = MicrosoftAzure\Storage\Blob\BlobRestProxy::createBlobService($azConnectionString);
             } catch(WindowsAzure\Common\ServiceException $e){
                 error_log("### Error creating Azure blob instance: ".$e->getCode()." - ".$e->getMessage());
             }
