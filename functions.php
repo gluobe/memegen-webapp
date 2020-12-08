@@ -91,7 +91,7 @@ function InsertMemes($imageName,$url){
             }
 
         } else {
-            error_log("### Cloud not recognized! ($cloud)");
+            error_log("### Cloud not recognized when inserting data! ($cloud)");
         }
     } else {
         // MongoDB
@@ -150,7 +150,7 @@ function GetMemes(){
             echo json_encode($iterator);
             
         } else {
-            error_log("### Cloud not recognized! ($cloud)");
+            error_log("### Cloud not recognized when getting data! ($cloud)");
         }
     } else {
         // Get data from local MongoDB
@@ -244,16 +244,12 @@ function generateMeme($top, $bot, $imgname){
             $storageAccountNameKeyLength = strlen("AccountName=");
             $storageAccountNameKeyValue = explode(';',$azConnectionString)[1];
             $storageAccountName = substr($storageAccountNameKeyValue, $storageAccountNameKeyLength);
-            
             // Set url
+            // Doesn't seem possible to get a url from the sdk.... https://stackoverflow.com/questions/27473802/getting-the-url-of-a-blob-just-uploaded-to-azure-storage-via-php
             $url = "https://$storageAccountName.blob.core.windows.net/$remoteBucketName/$imgnametargetwithext";
             
-            // Doesn't seem possible to just get a url.... https://stackoverflow.com/questions/27473802/getting-the-url-of-a-blob-just-uploaded-to-azure-storage-via-php
-            //     $blob = $b->getBlob($remoteBucketName, $imgnametargetwithext);
-            //     $url = $blob->getUrl();
-            
         } else {
-            error_log("### Cloud not recognized! ($cloud)");
+            error_log("### Cloud not recognized when uploading files! ($cloud)");
         }
           
         // Delete temporary file because it was uploaded and no longer needed locally

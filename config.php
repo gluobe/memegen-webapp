@@ -15,17 +15,21 @@ $region = "";
 #$region = "westeurope"; # AZ Netherlands
 
 $azConnectionString = "";
-// $azConnectionString = "DefaultEndpointsProtocol=https;AccountName=[ACCOUNTNAME];AccountKey=[ACCOUNTKEY];EndpointSuffix=core.windows.net"
+// $azConnectionString = "DefaultEndpointsProtocol=https;AccountName=[ACCOUNTNAME];AccountKey=[ACCOUNTKEY]"
 
 // We use "table" as a general location to store meme data. This can be aws dynamodb table, az storageaccount table...
 $remoteTableName = "lab-images-table-$yourId"; 
+#$remoteTableName = "lab-images-table-$yourId"; # using aws
+#$remoteTableName = "labImagesTable$yourId"; # using az
 #$remoteTableName = "lab-cf-images-table-$yourId"; # using aws cloudformation
-#$remoteTableName = "lab-arm-images-table-$yourId"; # using using azure resource manager
+#$remoteTableName = "labArmImagesTable$yourId"; # using using az resource manager
 
-// We use "bucket" as a general location to store meme files. This can be aws s3 bucket, az storageaccount blob...
+// We use "bucket" as a general location to store meme files. This can be aws s3 bucket, az storageaccount blob container...
 $remoteBucketName = "lab-images-bkt-$yourId"; 
+#$remoteBucketName = "lab-images-bkt-$yourId"; # using aws
+#$remoteBucketName = "lab-images-container-$yourId"; # using az
 #$remoteBucketName = "lab-cf-images-bkt-$yourId"; # using aws cloudformation 
-#$remoteBucketName = "lab-arm-images-bkt-$yourId"; # using azure resource manager
+#$remoteBucketName = "lab-arm-images-container-$yourId"; # using az resource manager
 
 # Wether to save data locally (mongodb) or remotely (cloud)
 $remoteData = false; # local
