@@ -79,7 +79,7 @@ BUCKETNAME="lab-images-bkt-$YOURID"
 # Install cloud sdks (We shouldn't do this as root but it doesn't really matter for the purposes of this workshop.)
   wget https://getcomposer.org/composer-stable.phar -O /usr/local/bin/composer
   chmod +x /usr/local/bin/composer
-  composer install -d /var/www/html
+  COMPOSER_HOME=/var/www/html composer install -d /var/www/html
   
 # Configure httpd and restart
   # Remove index.html

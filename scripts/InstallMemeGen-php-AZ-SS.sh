@@ -21,7 +21,7 @@ BUCKETNAME="lab-images-container-$YOURID"
   apt-get update -y && apt-get upgrade -y
   apt-get install -y jq
 
-  MYREGION=$(curl -s -H "Metadata:true" http://169.254.169.254/metadata/instance?api-version=2020-09-01 | jq '.compute.location')
+  MYREGION=$(curl -s -H "Metadata:true" http://169.254.169.254/metadata/instance?api-version=2020-09-01 | jq -r '.compute.location')
   PHP_VERSION=7.4
 
 # Install latest mongodb repo
@@ -79,7 +79,7 @@ BUCKETNAME="lab-images-container-$YOURID"
 # Install cloud sdks (We shouldn't do this as root but it doesn't really matter for the purposes of this workshop.)
   wget https://getcomposer.org/composer-stable.phar -O /usr/local/bin/composer
   chmod +x /usr/local/bin/composer
-  composer install -d /var/www/html
+  COMPOSER_HOME=/var/www/html composer install -d /var/www/html
   
 # Configure httpd and restart
   # Remove index.html

@@ -5,10 +5,13 @@
 * Find a way for credentials to not be so obnoxious in creds.php, is there a instance role in azure, like in aws?
   * virtual machine managed identities for vms, how to create
   * I saw you can grant storage account permissions to vm managed identities from the storage account iam interface.
-* Decide on using system managed identities or user managed identities?
-  * user == separate resource
-  * system == linked to resource && dies with resource
-  
+* How to auth memegen app? (when user manually installs app, when user installs app via script, when virtual scale sets installs app, when arm installs app)
+    * system managed identity does not seem to work with azure sdk for php (no auth possibility with managed identity tokens)
+    * system managed identity does not seem to work with storage account tables api (it does work for storage account blobs)
+    * system managed identity does not seem to work with azure cli, I cannot log in using system identity, only with user identity and others?
+    * system managed identity does not seem to work with storage account list keys api (management.azure.com), I cannot list storage account keys to be used in the app.
+    
+
   
 # Todo after done
 
