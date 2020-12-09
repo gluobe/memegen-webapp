@@ -18,14 +18,14 @@ $azConnectionString = "";
 // $azConnectionString = "DefaultEndpointsProtocol=https;AccountName=[ACCOUNTNAME];AccountKey=[ACCOUNTKEY]"
 
 // We use "table" as a general location to store meme data. This can be aws dynamodb table, az storageaccount table...
-$remoteTableName = "lab-images-table-$yourId"; 
+$remoteTableName = ""; 
 #$remoteTableName = "lab-images-table-$yourId"; # using aws
 #$remoteTableName = "labImagesTable$yourId"; # using az
 #$remoteTableName = "lab-cf-images-table-$yourId"; # using aws cloudformation
 #$remoteTableName = "labArmImagesTable$yourId"; # using using az resource manager
 
 // We use "bucket" as a general location to store meme files. This can be aws s3 bucket, az storageaccount blob container...
-$remoteBucketName = "lab-images-bkt-$yourId"; 
+$remoteBucketName = ""; 
 #$remoteBucketName = "lab-images-bkt-$yourId"; # using aws
 #$remoteBucketName = "lab-images-container-$yourId"; # using az
 #$remoteBucketName = "lab-cf-images-bkt-$yourId"; # using aws cloudformation 

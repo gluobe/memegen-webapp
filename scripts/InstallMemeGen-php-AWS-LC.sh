@@ -9,6 +9,10 @@ set -ex
 ###############################################
 YOURID="<your_ID>"
 
+CLOUD="AWS"
+TABLENAME="lab-images-table-$YOURID"
+BUCKETNAME="lab-images-bkt-$YOURID"
+
 
 # Set a settings for non interactive mode
   export DEBIAN_FRONTEND=noninteractive
@@ -26,13 +30,13 @@ YOURID="<your_ID>"
   apt-get update -y 
 
 # Install packages (apache, mongo, php, python and other useful packages)
-  apt-get install -y apache2 composer mongodb-org mongodb-org-server php$PHP_VERSION php$PHP_VERSION-dev libapache2-mod-php$PHP_VERSION php$PHP_VERSION-curl php-pear pkg-config libssl-dev libssl-dev python3-pip imagemagick wget unzip
+  apt-get install -y apache2 mongodb-org mongodb-org-server php$PHP_VERSION php$PHP_VERSION-dev libapache2-mod-php$PHP_VERSION php-pear pkg-config libssl-dev libssl-dev python3-pip imagemagick wget unzip
   
   # Mongodb config
   pecl install mongodb
   echo "extension=mongodb.so" >> /etc/php/$PHP_VERSION/apache2/php.ini && echo "extension=mongodb.so" >> /etc/php/$PHP_VERSION/cli/php.ini
 
-# Pip install meme creation packages and awscli for syncing s3 to local fs
+# Install python packages, wand is used to alter images with text
   pip3 install wand awscli
   
 # Enable and start services  
@@ -72,15 +76,10 @@ YOURID="<your_ID>"
   # Set permissions for apache
   chown -R www-data:www-data /var/www/html/meme-generator/
   
-# Install aws sdk for DynamoDB
-  until [ -f /var/www/html/vendor/autoload.php ]
-  do
-      echo "Installing AWS SDK into /var/www/html..."
-      export HOME=/root
-      export COMPOSER_HOME=/var/www/html
-      composer -d "/var/www/html" require aws/aws-sdk-php
-      sleep 2
-  done
+# Install cloud sdks (We shouldn't do this as root but it doesn't really matter for the purposes of this workshop.)
+  wget https://getcomposer.org/composer-stable.phar -O /usr/local/bin/composer
+  chmod +x /usr/local/bin/composer
+  composer install -d /var/www/html
   
 # Configure httpd and restart
   # Remove index.html
@@ -89,10 +88,13 @@ YOURID="<your_ID>"
   systemctl restart apache2
   
 # Edit site's config.php file
-  sed -i "s@^\$region.*@\$region = \"$MYREGION\"; # (Altered by sed)@g" /var/www/html/config.php
-  sed -i 's@^$remoteData.*@$remoteData = true; # DynamoDB (Altered by sed)@g' /var/www/html/config.php
-  sed -i 's@^$remoteFiles.*@$remoteFiles = true; # S3 (Altered by sed)@g' /var/www/html/config.php
   sed -i "s@^\$yourId.*@\$yourId = \"$YOURID\"; # (Altered by sed)@g" /var/www/html/config.php
+  sed -i "s@^\$cloud.*@\$cloud = \"$CLOUD\"; # (Altered by sed)@g" /var/www/html/config.php
+  sed -i "s@^\$region.*@\$region = \"$MYREGION\"; # (Altered by sed)@g" /var/www/html/config.php
+  sed -i "s@^\$remoteTableName.*@\$remoteTableName = \"$TABLENAME\"; # (Altered by sed)@g" /var/www/html/config.php
+  sed -i "s@^\$remoteBucketName.*@\$remoteBucketName = \"$BUCKETNAME\"; # (Altered by sed)@g" /var/www/html/config.php
+  sed -i 's@^$remoteData.*@$remoteData = true; # (Altered by sed)@g' /var/www/html/config.php
+  sed -i 's@^$remoteFiles.*@$remoteFiles = true; # (Altered by sed)@g' /var/www/html/config.php
 
 # Please go to http://
   echo -e "Automatic MemeGen installation complete."

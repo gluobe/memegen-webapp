@@ -1,22 +1,28 @@
 #!/bin/bash
-# Installs MemeGen. Make sure you've got privileges with the user you execute this as.
+# Installs MemeGen, modified to be used in a Launch Configuration.
 
 # Print each command and exit as soon as something fails.
-set -e
+set -ex
 
-# Make sure it's run as root
-if [[ $EUID -ne 0 ]]; then
-   echo "This script must be run as root! use 'sudo su -'." 
-   exit 1
-fi
-  
-  PHP_VERSION=7.4
+###############################################
+#### STUDENTS, please change this variable ####
+###############################################
+YOURID="<your_ID>"
+
+CLOUD="AZ"
+TABLENAME="labImagesTable$YOURID"
+BUCKETNAME="lab-images-container-$YOURID"
+
 
 # Set a settings for non interactive mode
   export DEBIAN_FRONTEND=noninteractive
 	
 # Update the server
   apt-get update -y && apt-get upgrade -y
+  apt-get install -y jq
+
+  MYREGION=$(curl -s -H "Metadata:true" http://169.254.169.254/metadata/instance?api-version=2020-09-01 | jq '.compute.location')
+  PHP_VERSION=7.4
 
 # Install latest mongodb repo
   wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add -
@@ -25,14 +31,14 @@ fi
 
 # Install packages (apache, mongo, php, python and other useful packages)
   apt-get install -y apache2 mongodb-org mongodb-org-server php$PHP_VERSION php$PHP_VERSION-dev libapache2-mod-php$PHP_VERSION php-pear pkg-config libssl-dev libssl-dev python3-pip imagemagick wget unzip
-
+  
   # Mongodb config
   pecl install mongodb
   echo "extension=mongodb.so" >> /etc/php/$PHP_VERSION/apache2/php.ini && echo "extension=mongodb.so" >> /etc/php/$PHP_VERSION/cli/php.ini
 
 # Install python packages, wand is used to alter images with text
-	pip3 install wand awscli
-	
+  pip3 install wand
+  
 # Enable and start services  
   # Enable
   systemctl enable mongod apache2
@@ -63,8 +69,8 @@ fi
   systemctl restart mongod
     
 # Download and install MemeGen
-  # Git clone the repository in your home directory (already done by student to run the script)
-  # git clone https://github.com/gluobe/memegen-webapp-aws.git ~/memegen-webapp
+  # Git clone the repository in your home directory
+  git clone https://github.com/gluobe/memegen-webapp-aws.git ~/memegen-webapp
   # Clone the application out of the repo to the web folder.
   cp -r ~/memegen-webapp/* /var/www/html/
   # Set permissions for apache
@@ -80,8 +86,17 @@ fi
   rm -f /var/www/html/index.html
   # Restart httpd
   systemctl restart apache2
+  
+# Edit site's config.php file
+  sed -i "s@^\$yourId.*@\$yourId = \"$YOURID\"; # (Altered by sed)@g" /var/www/html/config.php
+  sed -i "s@^\$cloud.*@\$cloud = \"$CLOUD\"; # (Altered by sed)@g" /var/www/html/config.php
+  sed -i "s@^\$region.*@\$region = \"$MYREGION\"; # (Altered by sed)@g" /var/www/html/config.php
+  sed -i "s@^\$remoteTableName.*@\$remoteTableName = \"$TABLENAME\"; # (Altered by sed)@g" /var/www/html/config.php
+  sed -i "s@^\$remoteBucketName.*@\$remoteBucketName = \"$BUCKETNAME\"; # (Altered by sed)@g" /var/www/html/config.php
+  sed -i 's@^$remoteData.*@$remoteData = true; # (Altered by sed)@g' /var/www/html/config.php
+  sed -i 's@^$remoteFiles.*@$remoteFiles = true; # (Altered by sed)@g' /var/www/html/config.php
 
 # Please go to http://
-  echo -e "Local MemeGen installation complete."
-  echo 'Local MemeGen installation complete.' | systemd-cat
+  echo -e "Automatic MemeGen installation complete."
+  echo 'Automatic MemeGen installation complete.' | systemd-cat
 
