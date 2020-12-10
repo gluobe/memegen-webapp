@@ -1,5 +1,5 @@
 #!/bin/bash
-# Installs MemeGen, modified to be used in a Launch Configuration.
+# Installs MemeGen for AWS, modified to be used in a Launch Configuration.
 
 # Print each command and exit as soon as something fails.
 set -ex

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Installs MemeGen. Make sure you've got privileges with the user you execute this as.
+# Installs MemeGen for AWS. Make sure you've got privileges with the user you execute this as.
 
 # Print each command and exit as soon as something fails.
 set -e
