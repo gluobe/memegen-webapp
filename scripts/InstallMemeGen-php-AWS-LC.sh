@@ -12,6 +12,7 @@ YOURID="<your_ID>"
 CLOUD="AWS"
 TABLENAME="lab-images-table-$YOURID"
 BUCKETNAME="lab-images-bkt-$YOURID"
+PHP_VERSION=7.4
 
 
 # Set a settings for non interactive mode
@@ -21,8 +22,8 @@ BUCKETNAME="lab-images-bkt-$YOURID"
   apt-get update -y && apt-get upgrade -y
   apt-get install -y jq
 
-  MYREGION=$(TOKEN=`curl -s X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"` && curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r ".region")
-  PHP_VERSION=7.4
+# Set variables (after jq is installed)
+  REGION=$(TOKEN=`curl -s X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"` && curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r ".region")
 
 # Install latest mongodb repo
   wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add -
@@ -90,7 +91,7 @@ BUCKETNAME="lab-images-bkt-$YOURID"
 # Edit site's config.php file
   sed -i "s@^\$yourId.*@\$yourId = \"$YOURID\"; # (Altered by sed)@g" /var/www/html/config.php
   sed -i "s@^\$cloud.*@\$cloud = \"$CLOUD\"; # (Altered by sed)@g" /var/www/html/config.php
-  sed -i "s@^\$region.*@\$region = \"$MYREGION\"; # (Altered by sed)@g" /var/www/html/config.php
+  sed -i "s@^\$region.*@\$region = \"$REGION\"; # (Altered by sed)@g" /var/www/html/config.php
   sed -i "s@^\$remoteTableName.*@\$remoteTableName = \"$TABLENAME\"; # (Altered by sed)@g" /var/www/html/config.php
   sed -i "s@^\$remoteBucketName.*@\$remoteBucketName = \"$BUCKETNAME\"; # (Altered by sed)@g" /var/www/html/config.php
   sed -i 's@^$remoteData.*@$remoteData = true; # (Altered by sed)@g' /var/www/html/config.php

@@ -12,6 +12,7 @@ YOURID="<your_ID>"
 CLOUD="AZ"
 TABLENAME="labImagesTable$YOURID"
 BUCKETNAME="lab-images-container-$YOURID"
+PHP_VERSION=7.4
 
 
 # Set a settings for non interactive mode
@@ -21,8 +22,10 @@ BUCKETNAME="lab-images-container-$YOURID"
   apt-get update -y && apt-get upgrade -y
   apt-get install -y jq
 
-  MYREGION=$(curl -s -H "Metadata:true" http://169.254.169.254/metadata/instance?api-version=2020-09-01 | jq -r '.compute.location')
-  PHP_VERSION=7.4
+# Set variables (after jq is installed)
+  INSTANCEMETADATA=$(curl -s -H "Metadata:true" http://169.254.169.254/metadata/instance?api-version=2020-09-01)
+  RESOURCEGROUPNAME=$(echo $INSTANCEMETADATA | jq -r '.compute.resourceGroupName')
+  REGION=$(echo $INSTANCEMETADATA | jq -r '.compute.location')
 
 # Install latest mongodb repo
   wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add -
@@ -70,11 +73,24 @@ BUCKETNAME="lab-images-container-$YOURID"
     
 # Download and install MemeGen
   # Git clone the repository in your home directory
-  git clone https://github.com/gluobe/memegen-webapp-aws.git ~/memegen-webapp
+  git clone --single-branch --branch azure-integrations https://github.com/gluobe/memegen-webapp-aws.git ~/memegen-webapp
   # Clone the application out of the repo to the web folder.
   cp -r ~/memegen-webapp/* /var/www/html/
   # Set permissions for apache
   chown -R www-data:www-data /var/www/html/meme-generator/
+  
+# Install azure cli
+  apt-get install -y azure-cli
+
+# Get storage account credentials
+  # Use the system managed identity as login
+  az login --identity
+  # Take the first storageaccount from the resource group, there should only be one.
+  STORAGEACCOUNTNAME=$(az storage account list --resource-group $RESOURCEGROUPNAME | jq -r '.[0].name')
+  # Pull storage account connectionstring, leave out the second field (EndpointSuffix)
+  CONNECTIONSTRING=$(az storage account show-connection-string --name $STORAGEACCOUNTNAME | jq -r '.connectionString' | cut -d';' --complement -f2)
+  # Write storage account connection string to config file
+  sed -i "s@^\$azConnectionString.*@\$azConnectionString = \"$CONNECTIONSTRING\"; # (Altered by sed)@g" /var/www/html/config.php
   
 # Install cloud sdks (We shouldn't do this as root but it doesn't really matter for the purposes of this workshop.)
   wget https://getcomposer.org/composer-stable.phar -O /usr/local/bin/composer
@@ -90,7 +106,7 @@ BUCKETNAME="lab-images-container-$YOURID"
 # Edit site's config.php file
   sed -i "s@^\$yourId.*@\$yourId = \"$YOURID\"; # (Altered by sed)@g" /var/www/html/config.php
   sed -i "s@^\$cloud.*@\$cloud = \"$CLOUD\"; # (Altered by sed)@g" /var/www/html/config.php
-  sed -i "s@^\$region.*@\$region = \"$MYREGION\"; # (Altered by sed)@g" /var/www/html/config.php
+  sed -i "s@^\$region.*@\$region = \"$REGION\"; # (Altered by sed)@g" /var/www/html/config.php
   sed -i "s@^\$remoteTableName.*@\$remoteTableName = \"$TABLENAME\"; # (Altered by sed)@g" /var/www/html/config.php
   sed -i "s@^\$remoteBucketName.*@\$remoteBucketName = \"$BUCKETNAME\"; # (Altered by sed)@g" /var/www/html/config.php
   sed -i 's@^$remoteData.*@$remoteData = true; # (Altered by sed)@g' /var/www/html/config.php
