@@ -9,9 +9,9 @@ set -ex
 ###############################################
 YOURID="<your_ID>"
 
-CLOUD="AZ"
-TABLENAME="labImagesTable$YOURID"
-BUCKETNAME="lab-images-container-$YOURID"
+CLOUD="AWS"
+TABLENAME="lab-images-table-$YOURID"
+BUCKETNAME="lab-images-bkt-$YOURID"
 PHP_VERSION=7.4
 
 
@@ -23,9 +23,7 @@ PHP_VERSION=7.4
   apt-get install -y jq
 
 # Set variables (after jq is installed)
-  INSTANCEMETADATA=$(curl -s -H "Metadata:true" http://169.254.169.254/metadata/instance?api-version=2020-09-01)
-  RESOURCEGROUPNAME=$(echo $INSTANCEMETADATA | jq -r '.compute.resourceGroupName')
-  REGION=$(echo $INSTANCEMETADATA | jq -r '.compute.location')
+  REGION=$(TOKEN=`curl -s X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"` && curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r ".region")
 
 # Install latest mongodb repo
   wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add -
@@ -33,14 +31,14 @@ PHP_VERSION=7.4
   apt-get update -y 
 
 # Install packages (apache, mongo, php, python and other useful packages)
-  apt-get install -y apache2 mongodb-org mongodb-org-server php$PHP_VERSION php$PHP_VERSION-dev libapache2-mod-php$PHP_VERSION php-pear pkg-config libssl-dev libssl-dev python3-pip imagemagick wget unzip
+  apt-get install -y apache2 mongodb-org mongodb-org-server php$PHP_VERSION php$PHP_VERSION-dev libapache2-mod-php$PHP_VERSION php$PHP_VERSION-curl php-pear pkg-config libssl-dev libssl-dev python3-pip imagemagick wget unzip
   
   # Mongodb config
   pecl install mongodb
   echo "extension=mongodb.so" >> /etc/php/$PHP_VERSION/apache2/php.ini && echo "extension=mongodb.so" >> /etc/php/$PHP_VERSION/cli/php.ini
 
 # Install python packages, wand is used to alter images with text
-  pip3 install wand
+  pip3 install wand awscli
   
 # Enable and start services  
   # Enable
@@ -73,24 +71,11 @@ PHP_VERSION=7.4
     
 # Download and install MemeGen
   # Git clone the repository in your home directory
-  git clone --single-branch --branch azure-integrations https://github.com/gluobe/memegen-webapp-aws.git ~/memegen-webapp
+  git clone https://github.com/gluobe/memegen-webapp-aws.git ~/memegen-webapp
   # Clone the application out of the repo to the web folder.
   cp -r ~/memegen-webapp/* /var/www/html/
   # Set permissions for apache
   chown -R www-data:www-data /var/www/html/meme-generator/
-  
-# Install azure cli
-  apt-get install -y azure-cli
-
-# Get storage account credentials
-  # Use the system managed identity as login
-  az login --identity
-  # Take the first storageaccount from the resource group, there should only be one.
-  STORAGEACCOUNTNAME=$(az storage account list --resource-group $RESOURCEGROUPNAME | jq -r '.[0].name')
-  # Pull storage account connectionstring, leave out the second field (EndpointSuffix)
-  CONNECTIONSTRING=$(az storage account show-connection-string --name $STORAGEACCOUNTNAME | jq -r '.connectionString' | cut -d';' --complement -f2)
-  # Write storage account connection string to config file
-  sed -i "s@^\$azConnectionString.*@\$azConnectionString = \"$CONNECTIONSTRING\"; # (Altered by sed)@g" /var/www/html/config.php
   
 # Install cloud sdks (We shouldn't do this as root but it doesn't really matter for the purposes of this workshop.)
   wget https://getcomposer.org/composer-stable.phar -O /usr/local/bin/composer

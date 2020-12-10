@@ -1,0 +1,170 @@
+1  vim script.sh
+2  chmod +x script.sh 
+3  ./script.sh 
+4  ls
+5  cd /var/www/html
+6  ls
+7  rm -f index.html 
+8  cd ../
+9  ls
+10  git clone --help
+11  git clone --single-branch --branch azure-integrations https://github.com/gluobe/memegen-webapp-aws.git ~/memegen-webapp
+12  rm -rf ~/memegen-webapp/
+13  git clone --single-branch --branch azure-integrations https://github.com/gluobe/memegen-webapp-aws.git html/
+14  ls -la
+15  ls -la html/
+16  cd html/
+17  s
+18  l
+19  chown -R www-data:www-data /var/www/html/meme-generator/
+20  systemctl restart apache2
+21  ls
+22  clear
+23  vim config.php 
+24  systemctl restart apache2
+25  cat getMemes.php 
+26  mongo
+27  mongo memegen -u student --password=Cloud247
+28  vim config.php 
+29  git branch
+30  git pull
+31  cat config.php 
+32  git reset --hard
+33  git pull
+34  vim config.php 
+35  cat /var/log/apache2/access.log 
+36  cat /var/log/apache2/error.log 
+37  cat /var/log/apache2/error.log  & grep bork
+38  systemctl restart apache2
+39  cat /var/log/apache2/error.log  | grep bork
+40  cat /var/log/apache2/error.log 
+41  git pull
+42  wget http://getcomposer.org/composer.phar 
+43  ls
+44  ls -la
+45  git pull
+46  php composer.phar install
+47  ls
+48  git pull
+49  vim creds.php
+50  ls -la
+51  systemctl restart apache2
+52  git pull
+53  git pull && systemctl restart apache2
+54  rm -f creds.php 
+55  git pull && systemctl restart apache2
+56  ls -la
+57  tree vend
+58  tree vendor/
+59  apt install tree
+60  tree vendor/
+61  clear
+62  curl http://169.254.169.254/metadata/instance?api-version=2020-09-01 | jq
+63  apt-get install jq -y
+64  curl http://169.254.169.254/metadata/instance?api-version=2020-09-01 | jq
+65  curl --help
+66  curl -H "Metadata:true" http://169.254.169.254/metadata/instance?api-version=2020-09-01 | jq
+67  curl -H "Metadata:true" http://169.254.169.254/metadata/instance?api-version=latest | jq
+68  curl -H "Metadata:true" http://169.254.169.254/metadata/instance | jq
+69  curl -H "Metadata:true" http://169.254.169.254/metadata/instance?api-version=2020-09-01 | jq
+70  curl -H "Metadata:true" http://169.254.169.254/metadata/identity?api-version=2020-09-01 | jq
+71  curl -H "Metadata:true" http://169.254.169.254/metadata/identity| jq
+72  curl -H "Metadata:true" http://169.254.169.254/metadata/instance/identity| jq
+73  curl -H "Metadata:true" http://169.254.169.254/metadata/instance/identity?api-version=2020-09-01 | jq
+74  curl -H "Metadata:true" http://169.254.169.254/metadata/identity/oauth/token| jq
+75  curl 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://management.azure.com/'
+76  curl -H 'Metadata:true' 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://management.azure.com/'
+77  curl -H 'Metadata:true' 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://storageaccount.azure.com/'
+78  curl -H 'Metadata:true' 'http://169.254.169.254/metadata/identity/oauth2/token&resource=https://storageaccount.azure.com/'
+79  curl -H 'Metadata:true' 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://storage.azure.com/'
+80  curl -H 'Metadata:true' 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://management.azure.com/'
+81  clear
+82  ls
+83  ls -la
+84  git pull
+85  find / -name phprc
+86  ls
+87  cd /var/www/html
+88  ls
+89  mv index.php index-orig.php 
+90  vim index.php
+91  systemctl restart apacheé
+92  systemctl restart apache2
+93  mv index.php phpinfo.php
+94  mv index-orig.php index.php 
+95  cd /root/phprc
+96  find / -name php.init
+97  find / -name php.ini
+98  vim /etc/php/7.4/apache2/php.ini
+99  systemctl restart apache2
+100  systemctl status apache2
+101  vim /etc/php/7.4/apache2/php.ini
+102  vim /etc/php/7.4/cli/php.ini 
+103  systemctl restart apache2
+104  curl -H 'Metadata:true' 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://storage.azure.com/'
+105  git status
+106  git pull
+107  systemctl restart apache2
+108  git pull && systemctl restart apache2 && systemctl status apache2
+109  vim functions.php 
+110  apt-get install php7.4-curl
+111  systemctl restart apache2
+112  git pull && systemctl restart apache2 && systemctl status apache2
+113  vim /etc/php/7.4/cli/php.ini 
+114  vim /etc/php/7.4/apache2/php.ini 
+115  git pull && systemctl restart apache2 && systemctl status apache2
+116  vim /etc/php/7.4/apache2/php.ini 
+117  git pull && systemctl restart apache2 && systemctl status apache2
+118  git diff
+119  git reset --hard
+120  git pull && systemctl restart apache2 && systemctl status apache2
+121  vim config.php 
+122  git pull && systemctl restart apache2 && systemctl status apache2
+123  vim config.php 
+124  vim functions.php 
+125  git pull && systemctl restart apache2 && systemctl status apache2
+126  vim config.php 
+127  git pull && systemctl restart apache2 && systemctl status apache2
+128  cp config.php ../
+129  git reset --hard
+130  git pull && systemctl restart apache2 && systemctl status apache2
+131  cp ../config.php ./
+132  cat config.php 
+133  git pull && systemctl restart apache2 && systemctl status apache2
+134  vim config.php 
+135  git reset --hard
+136  git pull && systemctl restart apache2 && systemctl status apache2
+137  vim config.php 
+138  rm -f ../config.php 
+139  vim config.php 
+140  git pull && systemctl restart apache2 && systemctl status apache2
+141  vim config.php 
+142  git pull && systemctl restart apache2 && systemctl status apache2
+143  git pull && systemctl restart apache2 && systemctl status apache2µ
+144  git pull && systemctl restart apache2 && systemctl status apache2
+145  vim config.php 
+146  git pull && systemctl restart apache2 && systemctl status apache2
+147  vim config.php 
+148  git pull && systemctl restart apache2 && systemctl status apache2
+149  vim config.php 
+150  git pull && systemctl restart apache2 && systemctl status apache2
+151  vim config.php 
+152  git pull && systemctl restart apache2 && systemctl status apache2
+153  tail -f /var/log/apache2/error.log 
+154  tail -f /var/log/apache2/error.log
+155  ls
+156  cd /var/www/html
+157  ls
+158  git status
+159  git pull
+160  git pull && systemctl restart apache2 && systemctl status apache2
+161  vim config.php 
+162  git pull && systemctl restart apache2 && systemctl status apache2
+163  vim config.php 
+164  git pull && systemctl restart apache2 && systemctl status apache2
+165  cat config.php 
+166  git pull && systemctl restart apache2 && systemctl status apache2
+167  cd /var/www/html
+168  ls
+169  git pull && systemctl restart apache2 && systemctl status apache2
+170  history

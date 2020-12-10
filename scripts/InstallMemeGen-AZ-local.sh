@@ -1,29 +1,22 @@
 #!/bin/bash
-# Installs MemeGen, modified to be used in a Launch Configuration.
+# Installs MemeGen. Make sure you've got privileges with the user you execute this as.
 
 # Print each command and exit as soon as something fails.
-set -ex
+set -e
 
-###############################################
-#### STUDENTS, please change this variable ####
-###############################################
-YOURID="<your_ID>"
-
-CLOUD="AWS"
-TABLENAME="lab-images-table-$YOURID"
-BUCKETNAME="lab-images-bkt-$YOURID"
-PHP_VERSION=7.4
-
+# Make sure it's run as root
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root! use 'sudo su -'." 
+   exit 1
+fi
+  
+  PHP_VERSION=7.4
 
 # Set a settings for non interactive mode
   export DEBIAN_FRONTEND=noninteractive
 	
 # Update the server
   apt-get update -y && apt-get upgrade -y
-  apt-get install -y jq
-
-# Set variables (after jq is installed)
-  REGION=$(TOKEN=`curl -s X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"` && curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r ".region")
 
 # Install latest mongodb repo
   wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add -
@@ -31,15 +24,15 @@ PHP_VERSION=7.4
   apt-get update -y 
 
 # Install packages (apache, mongo, php, python and other useful packages)
-  apt-get install -y apache2 mongodb-org mongodb-org-server php$PHP_VERSION php$PHP_VERSION-dev libapache2-mod-php$PHP_VERSION php-pear pkg-config libssl-dev libssl-dev python3-pip imagemagick wget unzip
-  
+  apt-get install -y apache2 mongodb-org mongodb-org-server php$PHP_VERSION php$PHP_VERSION-dev libapache2-mod-php$PHP_VERSION php$PHP_VERSION-curl php-pear pkg-config libssl-dev libssl-dev python3-pip imagemagick wget unzip
+
   # Mongodb config
   pecl install mongodb
   echo "extension=mongodb.so" >> /etc/php/$PHP_VERSION/apache2/php.ini && echo "extension=mongodb.so" >> /etc/php/$PHP_VERSION/cli/php.ini
 
 # Install python packages, wand is used to alter images with text
-  pip3 install wand awscli
-  
+	pip3 install wand awscli
+	
 # Enable and start services  
   # Enable
   systemctl enable mongod apache2
@@ -70,8 +63,8 @@ PHP_VERSION=7.4
   systemctl restart mongod
     
 # Download and install MemeGen
-  # Git clone the repository in your home directory
-  git clone https://github.com/gluobe/memegen-webapp-aws.git ~/memegen-webapp
+  # Git clone the repository in your home directory (already done by student to run the script)
+  # git clone https://github.com/gluobe/memegen-webapp-aws.git ~/memegen-webapp
   # Clone the application out of the repo to the web folder.
   cp -r ~/memegen-webapp/* /var/www/html/
   # Set permissions for apache
@@ -80,24 +73,15 @@ PHP_VERSION=7.4
 # Install cloud sdks (We shouldn't do this as root but it doesn't really matter for the purposes of this workshop.)
   wget https://getcomposer.org/composer-stable.phar -O /usr/local/bin/composer
   chmod +x /usr/local/bin/composer
-  COMPOSER_HOME=/var/www/html composer install -d /var/www/html
+  composer install -d /var/www/html
   
 # Configure httpd and restart
   # Remove index.html
   rm -f /var/www/html/index.html
   # Restart httpd
   systemctl restart apache2
-  
-# Edit site's config.php file
-  sed -i "s@^\$yourId.*@\$yourId = \"$YOURID\"; # (Altered by sed)@g" /var/www/html/config.php
-  sed -i "s@^\$cloud.*@\$cloud = \"$CLOUD\"; # (Altered by sed)@g" /var/www/html/config.php
-  sed -i "s@^\$region.*@\$region = \"$REGION\"; # (Altered by sed)@g" /var/www/html/config.php
-  sed -i "s@^\$remoteTableName.*@\$remoteTableName = \"$TABLENAME\"; # (Altered by sed)@g" /var/www/html/config.php
-  sed -i "s@^\$remoteBucketName.*@\$remoteBucketName = \"$BUCKETNAME\"; # (Altered by sed)@g" /var/www/html/config.php
-  sed -i 's@^$remoteData.*@$remoteData = true; # (Altered by sed)@g' /var/www/html/config.php
-  sed -i 's@^$remoteFiles.*@$remoteFiles = true; # (Altered by sed)@g' /var/www/html/config.php
 
 # Please go to http://
-  echo -e "Automatic MemeGen installation complete."
-  echo 'Automatic MemeGen installation complete.' | systemd-cat
+  echo -e "Local MemeGen installation complete."
+  echo 'Local MemeGen installation complete.' | systemd-cat
 
